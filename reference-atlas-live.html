@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Reference Atlas · Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#1D3A30; --teal:#2E7A76; --sage:#8CA794; --amber:#E2AA3B; --timber:#6A4125;
+  --mist:#EEF3F1; --stone:#6B7280; --brick:#B5472E; --slate:#3C6E9E;
+  --paper:#F7F9F8; --line:#D9E2DE; --line2:#C5D2CC; --white:#fff;
+  --serif:'Inter Tight', 'Manrope', system-ui, sans-serif; --sans:'Manrope', system-ui, sans-serif; --mono:'JetBrains Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--forest);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+::selection{background:var(--amber);color:var(--forest)}
+
+.top{position:sticky;top:0;z-index:30;background:var(--forest);color:var(--mist)}
+.top-inner{display:flex;align-items:center;gap:18px;padding:14px 28px;max-width:1800px;margin:0 auto}
+.brand{display:flex;align-items:baseline;gap:10px;white-space:nowrap}
+.brand h1{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:24px;margin:0}
+.brand h1 em{color:var(--amber);font-weight:500}
+.brand small{font-family:var(--mono);font-size:10.5px;color:var(--sage);letter-spacing:.12em;text-transform:uppercase}
+.search{flex:1;max-width:760px;display:flex;align-items:center;gap:0;background:rgba(238,243,241,.08);border:1px solid rgba(140,167,148,.35);border-radius:999px;transition:.2s;padding:4px 4px 4px 0}
+.search:focus-within{background:rgba(238,243,241,.14);border-color:var(--amber)}
+.search svg.mag{margin:0 10px 0 16px;opacity:.6;flex-shrink:0}
+.search input{flex:1;min-width:0;background:none;border:0;padding:8px 6px;color:var(--mist);outline:none}
+.search input::placeholder{color:rgba(238,243,241,.5)}
+.mode{display:flex;background:rgba(0,0,0,.22);border-radius:999px;padding:3px;flex-shrink:0}
+.mode button{border:0;background:none;color:rgba(238,243,241,.75);padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;display:flex;gap:6px;align-items:center}
+.mode button.on{background:var(--mist);color:var(--forest)}
+.mode button.on.ai{background:var(--amber);color:var(--forest)}
+.topbtn{border:0;background:rgba(0,0,0,.2);color:var(--mist);padding:9px 15px;border-radius:999px;font-weight:600;font-size:13px;display:flex;gap:7px;align-items:center;white-space:nowrap}
+.topbtn.on{background:var(--mist);color:var(--forest)}
+.topbtn .count{font-family:var(--mono);font-size:10.5px;background:var(--amber);color:var(--forest);border-radius:999px;padding:1px 7px}
+.iconbtn{border:0;background:rgba(0,0,0,.2);color:var(--mist);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+
+.wrap{max-width:1800px;margin:0 auto;display:grid;grid-template-columns:290px 1fr;min-height:calc(100vh - 66px)}
+aside{border-right:1px solid var(--line);padding:22px 22px 60px;position:sticky;top:66px;height:calc(100vh - 66px);overflow:auto}
+aside::-webkit-scrollbar{width:6px}aside::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+main{padding:24px 30px 80px;min-width:0}
+.fgroup{margin-bottom:22px}
+.flabel{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
+.flabel button{border:0;background:none;color:var(--teal);font-family:var(--mono);font-size:10.5px;padding:0;text-transform:none;letter-spacing:.04em}
+.flabel .ad{font-family:var(--mono);font-size:9px;letter-spacing:.06em;background:var(--mist);border-radius:4px;padding:1px 5px;text-transform:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line2);background:var(--white);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:500;transition:.12s;line-height:1.2}
+.chip:hover{border-color:var(--teal)}
+.chip.on{background:var(--forest);border-color:var(--forest);color:var(--mist)}
+.srcs{display:flex;flex-direction:column;gap:4px}
+.srow{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid transparent;cursor:pointer;user-select:none;transition:.12s}
+.srow:hover{background:var(--white);border-color:var(--line)}
+.srow .bx{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;flex-shrink:0;background:#fff}
+.srow.on .bx{background:var(--c);border-color:var(--c)}
+.srow.on .bx::after{content:"";width:8px;height:4px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.srow b{font-weight:600;font-size:13px;flex:1}
+.srow small{font-family:var(--mono);font-size:10.5px;color:var(--stone)}
+.srow .sp{width:12px;height:12px;border:2px solid var(--line2);border-top-color:var(--teal);border-radius:50%;animation:sp .8s linear infinite}
+.sel{width:100%;border:1px solid var(--line2);border-radius:10px;padding:9px 10px;background:var(--white);font-size:13px;outline:none}
+.sel:focus{border-color:var(--teal)}
+.range{display:flex;gap:8px;align-items:center}
+.range input{width:100%;border:1px solid var(--line2);border-radius:10px;padding:8px 10px;background:var(--white);font-family:var(--mono);font-size:12px;outline:none}
+.range input:focus{border-color:var(--teal)}
+.buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
+.buckets button{border:1px solid var(--line2);background:var(--white);border-radius:8px;padding:6px 4px;font-family:var(--mono);font-size:10.5px}
+.buckets button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.note{font-size:12px;color:var(--stone);line-height:1.55;background:var(--mist);border-radius:10px;padding:10px 12px}
+.reset{width:100%;border:1px dashed var(--line2);background:none;border-radius:12px;padding:10px;color:var(--stone);font-weight:600}
+.reset:hover{border-color:var(--brick);color:var(--brick)}
+
+.mh{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:16px;flex-wrap:wrap}
+.mh h2{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:34px;line-height:1;margin:0}
+.mh h2 i{color:var(--teal)}
+.mh p{margin:6px 0 0;color:var(--stone)}
+.tools{display:flex;gap:8px;align-items:center}
+.seg2{display:flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--white)}
+.seg2 button{border:0;background:none;padding:7px 11px;font-family:var(--mono);font-size:11px;color:var(--stone)}
+.seg2 button.on{background:var(--mist);color:var(--forest)}
+.active-f{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 18px}
+.af{background:var(--mist);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 11px;font-size:12px;display:flex;gap:6px;align-items:center}
+.af button{border:0;background:var(--white);border-radius:50%;width:18px;height:18px;line-height:16px;padding:0;color:var(--stone)}
+
+/* AI banner */
+.aib{background:linear-gradient(120deg,#fff 0%,#FBF4E4 100%);border:1px solid #EBD9B0;border-radius:16px;padding:18px 20px;margin-bottom:22px}
+.aib .h{display:flex;gap:10px;align-items:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--timber)}
+.aib p{margin:8px 0 12px;font-size:14.5px;line-height:1.55}
+.aib .pre{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:12px}
+.pcard{display:flex;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:.15s;min-height:74px}
+.pcard:hover{border-color:var(--amber)}
+.pcard .t{width:84px;flex-shrink:0;background:var(--mist);position:relative}
+.pcard .t img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pcard .b{padding:8px 10px 8px 0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.pcard b{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:13px;line-height:1.1}
+.pcard small{font-size:11.5px;color:var(--stone);line-height:1.35}
+.aithink{display:flex;gap:10px;align-items:center;color:var(--timber)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw,320px),1fr));gap:22px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s, box-shadow .18s;position:relative}
+.card:hover{transform:translateY(-3px);box-shadow:0 16px 34px -20px rgba(29,58,48,.5)}
+.ph{position:relative;aspect-ratio:4/3;background:var(--mist);overflow:hidden;cursor:zoom-in}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .35s, transform .6s}
+.card:hover .ph img.cur{transform:scale(1.03)}
+.ph .dots{position:absolute;left:0;right:0;bottom:10px;display:flex;gap:5px;justify-content:center;opacity:0;transition:.2s}
+.card:hover .dots{opacity:1}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}
+.dots i.on{background:#fff}
+.ph .zones{position:absolute;inset:0;display:flex}
+.ph .zones span{flex:1}
+.badge{position:absolute;left:12px;top:12px;font-family:var(--mono);font-size:10.5px;background:rgba(255,255,255,.9);padding:3px 8px;border-radius:6px}
+.src{position:absolute;left:12px;bottom:12px;font-family:var(--mono);font-size:10px;color:#fff;padding:3px 8px;border-radius:6px;display:flex;gap:5px;align-items:center}
+.save{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:grid;place-items:center;z-index:3;transition:.15s}
+.save:hover{transform:scale(1.08)}
+.save.on{background:var(--amber)}
+.cb{padding:13px 16px 15px;display:flex;flex-direction:column;gap:5px;flex:1}
+.cat{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+.card h3{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:18px;line-height:1.12;margin:0}
+.card h3 a{text-decoration:none}
+.card h3 a:hover{color:var(--teal)}
+.by{color:var(--stone);font-size:13px}
+.meta{display:flex;gap:12px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;flex-wrap:wrap}
+.meta em{font-style:normal;color:var(--stone)}
+.credit{font-size:11px;color:var(--stone)}
+.ph img.dw,.lb .stage img.dw{object-fit:contain;background:#fff}
+.ph img.dw{padding:6px}
+.dwtag{position:absolute;right:12px;bottom:12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:#fff;color:var(--forest);border:1px solid var(--line2);padding:2px 7px;border-radius:5px;opacity:0;transition:.2s}
+.dwtag.on{opacity:1}
+.lb .gal{grid-column:1;overflow:auto;padding:0 34px 40px;min-width:0;position:relative}
+.lb .ghead{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:14px;padding:16px 60px 16px 0;margin-bottom:6px;background:linear-gradient(rgba(14,26,22,.98) 70%,rgba(14,26,22,0))}
+.lb .ghead .gtitle{font-family:var(--serif);font-weight:600;font-size:17px;color:var(--mist);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.lb .ghead .lbtabs{position:static;transform:none}
+.lb .ghead .gsize{position:static}
+.lb .gal .cols{columns:var(--gc,3) 300px;column-gap:14px}
+.lb .gal .gi{break-inside:avoid;margin:0 0 14px;border-radius:10px;overflow:hidden;cursor:zoom-in;position:relative;background:rgba(238,243,241,.06);transition:transform .2s, box-shadow .2s}
+.lb .gal .gi:hover{transform:translateY(-2px);box-shadow:0 18px 40px -18px rgba(0,0,0,.7)}
+.lb .gal .gi img{width:100%;display:block;min-height:120px}
+.lb .gal .gi.dw{background:#fff}.lb .gal .gi.dw img{padding:10px}
+.lb .gal .gi .k{position:absolute;left:10px;bottom:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:rgba(29,58,48,.85);color:var(--mist);padding:2px 7px;border-radius:5px;opacity:0;transition:.2s}
+.lb .gal .gi:hover .k,.lb .gal .gi.dw .k{opacity:1}
+.lb .gal .gi.dw .k{background:#fff;color:var(--forest);border:1px solid var(--line2)}
+.lb .gal .msg{color:var(--sage);text-align:center;padding:80px 20px;line-height:1.6}
+.lb .gal .gsize{display:flex;gap:4px;background:rgba(238,243,241,.1);padding:4px;border-radius:999px;z-index:2}
+.lb .gal .gsize button{border:0;background:none;color:var(--mist);padding:5px 11px;border-radius:999px;font-family:var(--mono);font-size:11px}
+.lb .gal .gsize button.on{background:var(--mist);color:var(--forest)}
+.lb .back{position:absolute;top:16px;left:16px;border:0;background:rgba(238,243,241,.15);color:var(--mist);padding:9px 15px;border-radius:999px;font-weight:600;font-size:13px;z-index:3}
+.lb .back:hover{background:rgba(238,243,241,.28)}
+.lb .count{position:absolute;bottom:88px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--sage)}
+.lbtabs{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(238,243,241,.1);padding:4px;border-radius:999px;z-index:2}
+.lbtabs button{border:0;background:none;color:var(--mist);padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600}
+.lbtabs button.on{background:var(--mist);color:var(--forest)}
+.lbtabs button[disabled]{opacity:.35;cursor:default}
+.qinfo{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px;color:var(--stone);margin:-8px 0 16px}
+.qinfo b{color:var(--forest)}.qinfo s{color:var(--brick)}
+.qinfo button{border:0;background:none;color:var(--teal);font-weight:600;font-size:12.5px;padding:0;text-decoration:underline;text-underline-offset:3px}
+.homebtn{border:0;background:rgba(238,243,241,.1);color:var(--mist);width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;transition:.15s}
+.homebtn:hover{background:var(--mist);color:var(--forest)}
+.colbadge{position:absolute;left:12px;top:40px;font-size:11px;font-weight:700;background:var(--amber);color:var(--forest);padding:3px 9px;border-radius:6px;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bsearch{border:1px solid var(--line2);border-radius:999px;padding:8px 14px;min-width:220px;outline:none;background:#fff;font-size:13px}
+.bsearch:focus{border-color:var(--teal)}
+.bbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:-4px 0 18px}
+.bviews{display:flex;background:var(--white);border:1px solid var(--line2);border-radius:12px;padding:3px;gap:2px}
+.bviews button{border:0;background:none;padding:8px 13px;border-radius:9px;font-weight:600;font-size:12.5px;color:var(--stone);display:flex;gap:6px;align-items:center}
+.bviews button.on{background:var(--forest);color:var(--mist)}
+.bviews .n{font-family:var(--mono);font-size:10px;background:var(--amber);color:var(--forest);border-radius:999px;padding:0 6px}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tagchip{border:1px solid var(--line2);background:var(--white);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--timber)}
+.tagchip.on{background:var(--timber);border-color:var(--timber);color:#fff}
+.tagchip button{border:0;background:none;padding:0 0 0 4px;color:inherit;opacity:.6}
+.tagin{border:1px dashed var(--line2);border-radius:999px;padding:5px 11px;font-size:12px;outline:none;background:transparent;min-width:120px}
+.tagin:focus{border-color:var(--teal);background:#fff}
+.cmpbtn{position:absolute;right:52px;top:10px;height:34px;padding:0 11px;border-radius:999px;border:0;background:rgba(255,255,255,.92);font-size:11.5px;font-weight:700;z-index:3;display:flex;gap:5px;align-items:center}
+.cmpbtn.on{background:var(--forest);color:var(--mist)}
+.ctags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ctags span{font-size:10.5px;font-weight:600;color:var(--timber);background:#F4EDE6;border-radius:5px;padding:1px 7px}
+/* compare */
+.cmp{display:grid;gap:14px;align-items:start}
+.cmp .col{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.cmp .im{aspect-ratio:4/3;max-height:320px;width:100%;background:var(--mist);position:relative;cursor:zoom-in}
+.cmp .im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmp .im.dw{background:#fff}.cmp .im.dw img{object-fit:contain;padding:8px}
+.cmp .im .lbl{position:absolute;left:8px;top:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.92);padding:2px 7px;border-radius:5px;border:1px solid var(--line)}
+.cmp .rw{padding:9px 14px;border-top:1px solid var(--line);font-size:13px;min-height:38px}
+.cmp .rw span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin-bottom:2px}
+.cmp h3{font-family:var(--serif);font-weight:600;font-size:19px;margin:0;line-height:1.15}
+.cmp .x{border:0;background:none;color:var(--stone);font-size:12px;padding:8px 14px;text-align:left;border-top:1px solid var(--line)}
+.cmp .x:hover{color:var(--brick)}
+/* matrix */
+.mtx-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+table.mtx{border-collapse:collapse;width:100%;font-size:12.5px;min-width:1100px}
+.mtx th{position:sticky;top:0;background:var(--mist);text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);font-weight:500;padding:10px 10px;cursor:pointer;white-space:nowrap;border-bottom:1px solid var(--line)}
+.mtx th:hover{color:var(--forest)}
+.mtx td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.mtx tr:hover td{background:#FAFCFB}
+.mtx td.th{width:84px}.mtx td.th img{width:76px;height:56px;object-fit:cover;border-radius:6px;display:block;cursor:zoom-in}
+.mtx td b{font-family:var(--serif);font-weight:600;font-size:14px}
+.mtx td.nt{max-width:260px;white-space:pre-wrap;color:var(--forest)}
+.mtx a{color:var(--teal)}
+/* map */
+#map{height:min(68vh,640px);border-radius:14px;border:1px solid var(--line);overflow:hidden;background:var(--mist)}
+.nomap{margin-top:16px}
+.nomap .r{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.nomap .r input{flex:1;max-width:320px;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;outline:none}
+.leaflet-popup-content{font-family:var(--sans);margin:10px 12px}
+.pop img{width:200px;height:130px;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px}
+.pop b{font-family:var(--serif);font-weight:600;font-size:15px;display:block}
+.pop button{margin-top:6px;border:0;background:var(--forest);color:var(--mist);border-radius:7px;padding:5px 10px;font-weight:600;font-size:12px;cursor:pointer}
+/* roulette */
+.rou{background:linear-gradient(120deg,#fff,#FBF4E4);border:1px solid #EBD9B0;border-radius:14px;padding:12px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.rou b{font-family:var(--serif);font-weight:600;font-size:18px}
+#print{display:none}
+@media print{
+  body>*:not(#print){display:none!important}
+  #print{display:block;color:#1D3A30;font-family:var(--sans)}
+  .pp{page-break-after:always;padding:6mm 2mm}
+  .pp h1{font-family:var(--serif);font-weight:600;font-size:26pt;margin:0 0 2mm}
+  .pp h2{font-family:var(--serif);font-weight:600;font-size:17pt;margin:0}
+  .pp .meta2{font-size:9.5pt;color:#6B7280;margin:1mm 0 3mm}
+  .pp .imgs{display:grid;grid-template-columns:2fr 1fr;gap:3mm;height:120mm}
+  .pp .imgs img{width:100%;height:100%;object-fit:cover;border-radius:2mm}
+  .pp .imgs .side2{display:grid;grid-template-rows:1fr 1fr;gap:3mm;min-height:0}
+  .pp .imgs .side2 img{object-fit:contain;background:#fff;border:0.3mm solid #D9E2DE}
+  .pp table{width:100%;border-collapse:collapse;font-size:10pt;margin-top:4mm}
+  .pp td{padding:1.5mm 2mm;border-bottom:0.3mm solid #D9E2DE;vertical-align:top}
+  .pp td:first-child{width:32mm;color:#6B7280;font-size:8.5pt;text-transform:uppercase;letter-spacing:.06em}
+  .pp .credit2{font-size:8pt;color:#6B7280;margin-top:3mm}
+  .pp.cover{display:flex;flex-direction:column;justify-content:center;height:250mm}
+  .pp.cover .list{columns:2;font-size:10pt;margin-top:8mm;line-height:1.6}
+  @page{size:A4;margin:12mm}
+}
+.kind{display:grid;grid-template-columns:1fr 1fr;background:var(--white);border:1px solid var(--line2);border-radius:12px;padding:3px;gap:3px}
+.kind button{border:0;background:none;padding:9px 6px;border-radius:9px;font-weight:600;font-size:12.5px;color:var(--stone)}
+.kind button.on{background:var(--forest);color:var(--mist)}
+.smart{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.smart b{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:500}
+.noimg{position:absolute;inset:0;display:grid;place-items:center;color:var(--sage);font-family:var(--serif);font-weight:600;font-size:15px;background:repeating-linear-gradient(45deg,var(--mist),var(--mist) 8px,#fff 8px,#fff 16px)}
+
+.more{display:flex;justify-content:center;margin:30px 0}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:700;font-size:13px;display:inline-flex;gap:8px;align-items:center;justify-content:center;transition:.12s;text-decoration:none}
+.btn.dark{background:var(--forest);color:var(--mist)}.btn.dark:hover{background:var(--teal)}
+.btn.ghost{background:var(--white);border:1px solid var(--line2)}.btn.ghost:hover{border-color:var(--teal)}
+.btn.amber{background:var(--amber);color:var(--forest)}
+.btn[disabled]{opacity:.5;cursor:default}
+.status{color:var(--stone);display:flex;gap:10px;align-items:center;justify-content:center;padding:40px}
+.spin{width:16px;height:16px;border:2px solid var(--line2);border-top-color:var(--teal);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{border:1px dashed var(--line2);border-radius:14px;padding:50px 20px;text-align:center;color:var(--stone);line-height:1.6}
+.empty h4{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:24px;color:var(--forest);margin:0 0 6px}
+.warn{font-size:12.5px;color:var(--brick);background:#F8E9E5;border-radius:10px;padding:9px 12px;margin-bottom:14px}
+
+/* lightbox */
+.lb{position:fixed;inset:0;background:rgba(14,26,22,.96);z-index:60;display:none;grid-template-columns:1fr 370px}
+.lb.on{display:grid}
+.lb .stage{position:relative;display:flex;align-items:center;justify-content:center;padding:40px 70px 110px;min-width:0}
+.lb .stage img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.lb .nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(238,243,241,.12);color:var(--mist);font-size:22px}
+.lb .nav:hover{background:rgba(238,243,241,.25)}
+.lb .prev{left:14px}.lb .next{right:14px}
+.lb .strip{position:absolute;left:0;right:0;bottom:18px;display:flex;gap:8px;justify-content:center;padding:0 20px;overflow-x:auto}
+.lb .strip img{width:84px;height:60px;object-fit:cover;border-radius:6px;opacity:.5;cursor:pointer;border:2px solid transparent;flex-shrink:0}
+.lb .strip img.on{opacity:1;border-color:var(--amber)}
+.lb .side{background:var(--paper);padding:26px 26px 30px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.lb .side h2{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:27px;line-height:1.05;margin:4px 0 0}
+.lb .close{position:absolute;right:394px;top:16px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(238,243,241,.15);color:var(--mist);font-size:18px;z-index:6}
+.lb .loadmsg{position:absolute;top:16px;left:50%;transform:translateX(-50%);color:var(--sage);font-size:12px;font-family:var(--mono)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.facts div{background:var(--white);padding:10px 12px}
+.facts span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin-bottom:2px}
+.facts b{font-weight:600;font-size:13px}
+textarea.nt{width:100%;min-height:90px;border:1px solid var(--line2);border-radius:12px;padding:11px 13px;background:var(--white);resize:vertical;outline:none;line-height:1.5}
+textarea.nt:focus{border-color:var(--teal)}
+.colin{width:100%;border:1px solid var(--line2);border-radius:10px;padding:9px 12px;background:var(--white);outline:none}
+.sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone);margin-top:6px}
+.small{font-size:11.5px;color:var(--stone);line-height:1.5}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(29,58,48,.45);backdrop-filter:blur(3px);z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.mbox{background:var(--paper);border-radius:18px;max-width:520px;width:100%;padding:26px 28px;box-shadow:0 30px 80px -20px rgba(0,0,0,.4)}
+.mbox h3{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:25px;margin:0 0 6px}
+.mbox p{color:var(--stone);line-height:1.55;margin:0 0 14px}
+.mbox input,.mbox select{width:100%;border:1px solid var(--line2);border-radius:10px;padding:11px 13px;background:#fff;outline:none;font-family:var(--mono);font-size:12.5px;margin-bottom:10px}
+.mbox input:focus{border-color:var(--teal)}
+.mbox .row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+
+.board-col{margin-bottom:34px}
+.board-col h4{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:24px;margin:0 0 14px;display:flex;align-items:baseline;gap:10px}
+.board-col h4 small{font-family:var(--mono);font-size:11px;color:var(--stone)}
+.bn{font-size:13px;line-height:1.45;white-space:pre-wrap;border-left:2px solid var(--amber);padding-left:9px;margin-top:4px}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);background:var(--forest);color:var(--mist);padding:11px 18px;border-radius:999px;font-weight:600;font-size:13px;opacity:0;transition:.25s;z-index:80;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1000px){
+  .wrap{grid-template-columns:1fr} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .top-inner{flex-wrap:wrap;padding:12px 16px}.search{order:3;flex-basis:100%;max-width:none}
+  .lb{grid-template-columns:1fr}.lb .side{display:none}.lb .close{right:16px}
+}
+em,i{font-style:normal}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-inner">
+  <button class="homebtn" id="homeBtn" title="Home — back to the main page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg></button>
+  <div class="brand" id="brandHome" style="cursor:pointer" title="Home"><h1>Reference <em>Atlas</em></h1><small>live</small></div>
+  <div class="search">
+    <svg class="mag" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" autocomplete="off">
+    <div class="mode" id="mode"><button data-m="search" class="on">Search</button><button data-m="smart" class="ai">✦ Smart search</button></div>
+  </div>
+  <button class="topbtn" id="rouBtn" title="Inspiration roulette — random function & material">🎲 Surprise me</button>
+  <button class="topbtn" id="boardBtn">Board <span class="count" id="bc">0</span></button>
+</div></header>
+<div class="wrap"><aside id="side"></aside><main id="main"></main></div>
+<div class="lb" id="lb"></div>
+<div class="toast" id="toast"></div>
+<div id="print"></div>
+
+<script>
+/* ===================== sources ===================== */
+const SOURCES=[
+ {k:"archdaily",n:"ArchDaily",c:"#2E7A76",type:"ad"},
+ {k:"dezeen",n:"Dezeen",c:"#1D3A30",type:"wp",host:"www.dezeen.com",extra:"&categories=4"},
+ {k:"archeyes",n:"ArchEyes",c:"#6A4125",type:"wp",host:"archeyes.com"},
+ {k:"arch2o",n:"Arch2O",c:"#3C6E9E",type:"wp",host:"www.arch2o.com"},
+ {k:"architect",n:"ARCHITECT Magazine",c:"#B5472E",type:"wp",host:"www.architectmagazine.com"},
+ {k:"archiscene",n:"ArchiScene",c:"#5E8F6E",type:"wp",host:"www.archiscene.net"},
+ {k:"earchitect",n:"e-architect",c:"#4B5563",type:"wp",host:"www.e-architect.com"},
+ {k:"contemporist",n:"Contemporist",c:"#C98E2A",type:"wp",host:"www.contemporist.com"},
+ {k:"yellowtrace",n:"Yellowtrace",c:"#8B6B1F",type:"wp",host:"www.yellowtrace.com.au"},
+ {k:"landezine",n:"Landezine",c:"#7FA88A",type:"wp",host:"landezine.com",note:"landscape"},
+ {k:"commons",n:"Wikimedia Commons",c:"#3B5BA9",type:"commons",note:"open licence"},
+];
+const SRC=Object.fromEntries(SOURCES.map(s=>[s.k,s]));
+const AD_API="https://www.archdaily.com/search/api/v1/us/projects";
+const FUNCTIONS=[
+ ["Houses","houses"],["Housing","housing"],["Social housing","social-housing"],["Apartments","apartments"],
+ ["Cultural center","cultural-center"],["Museum","museum"],["Library","library"],["Pavilion","pavilion"],["Gallery","gallery"],["Theater","theater"],["Concert house","concert-house"],["Visitor center","visitor-center"],
+ ["Schools","schools"],["Kindergarten","kindergarten"],["University","university"],["Dorms","dorms"],
+ ["Office buildings","office-buildings"],["Commercial & offices","commercial-and-offices"],["Mixed use","mixed-use-architecture"],
+ ["Hotels","hotels"],["Cabins & lodges","cabins-and-lodges"],["Restaurant","restaurant"],
+ ["Community center","community-center"],["Town hall","town-and-city-hall"],
+ ["Hospital","hospital"],["Clinic","clinic"],["Spa","spa"],["Sauna","sauna"],
+ ["Churches","churches"],["Chapel","chapel"],["Memorial","memorial-center"],
+ ["Sports","sports-architecture"],["Gymnasium","gymnasium"],["Swimming pool","swimming-pool"],
+ ["Landscape & urbanism","landscape-and-urbanism"],["Public space","public-space"],["Park","park"],
+ ["Adaptive reuse","adaptive-reuse"],["Extension","extension"],["Renovation","renovation"],
+ ["Industrial","industrial-and-infrastructure"],["Pedestrian bridge","pedestrian-bridge"],["Train station","train-station"],
+ ["Skyscrapers","skyscrapers"],["Small scale","small-scale"],["Installation","installation"]
+];
+const FN_KEYWORD={"houses":"house","housing":"housing","social-housing":"social housing","apartments":"apartments","cultural-center":"cultural centre","museum":"museum","library":"library","pavilion":"pavilion","gallery":"gallery","theater":"theatre","concert-house":"concert hall","visitor-center":"visitor centre","schools":"school","kindergarten":"kindergarten","university":"university","dorms":"student housing","office-buildings":"office","commercial-and-offices":"office","mixed-use-architecture":"mixed-use","hotels":"hotel","cabins-and-lodges":"cabin","restaurant":"restaurant","community-center":"community centre","town-and-city-hall":"town hall","hospital":"hospital","clinic":"clinic","spa":"spa","sauna":"sauna","churches":"church","chapel":"chapel","memorial-center":"memorial","sports-architecture":"sports","gymnasium":"sports hall","swimming-pool":"swimming pool","landscape-and-urbanism":"landscape","public-space":"public space","park":"park","adaptive-reuse":"adaptive reuse","extension":"extension","renovation":"renovation","industrial-and-infrastructure":"industrial","pedestrian-bridge":"bridge","train-station":"station","skyscrapers":"tower","small-scale":"small","installation":"installation"};
+const MATERIALS=["Wood","Concrete","Steel","Glass","Brick","Stone","Fabric","Plastic"];
+const MAT_KEYWORD={Wood:"timber",Concrete:"concrete",Steel:"steel",Glass:"glass",Brick:"brick",Stone:"stone",Fabric:"fabric",Plastic:"plastic"};
+const AREA_B=[["<200",0,200],["200–1k",200,1000],["1k–5k",1000,5000],["5k–20k",5000,20000],["20k–60k",20000,60000],["60k+",60000,0]];
+const YEARS=Array.from({length:2026-1990+1},(_,i)=>2026-i);
+const FALLBACK_COUNTRIES=["Australia","Austria","Belgium","Brazil","Canada","Chile","China","Colombia","Czech Republic","Denmark","Estonia","Finland","France","Germany","Greece","Iceland","India","Ireland","Italy","Japan","Mexico","Netherlands","Norway","Poland","Portugal","Saudi Arabia","Singapore","Slovakia","South Korea","Spain","Sweden","Switzerland","Thailand","Turkey","Ukraine","United Arab Emirates","United Kingdom","United States","Vietnam"].map(n=>({n,s:n.toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-")}));
+
+/* ===================== state ===================== */
+const S={mode:"search",view:"results",q:"",cat:"",country:"",mat:"",year:"",amin:"",amax:"",bucket:null,size:"m",order:"mix",
+  on:Object.fromEntries(SOURCES.map(s=>[s.k,true])),
+  res:{},seq:0,countries:[],board:{},preview:"photos",smart:null,kind:"projects",bview:"cards",colf:[],nq:"",cmp:[],roulette:null};
+const LS="refatlas.live.v2";
+try{const j=JSON.parse(localStorage.getItem(LS)||localStorage.getItem("refatlas.live.v1")||"null");if(j){S.board=j.board||{};S.size=j.size||"m";S.countries=j.countries||[];S.preview=j.preview||"photos";S.kind=j.kind||"projects";S.cmp=j.cmp||[];if(j.on)Object.assign(S.on,j.on)}}catch(e){}
+function persist(){try{localStorage.setItem(LS,JSON.stringify({board:S.board,size:S.size,countries:S.countries,preview:S.preview,on:S.on,kind:S.kind,cmp:S.cmp}))}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dec=s=>{const t=document.createElement("textarea");t.innerHTML=s||"";return t.value};
+const fmtA=a=>{if(!a)return"";const m=String(a).match(/([\d.,]+)\s*(m2|m²|ft2|ft²|sqft)?/i);if(!m)return String(a);let n=parseFloat(m[1].replace(/,/g,""));if(!n)return"";const ft=/ft/i.test(m[2]||"");if(ft)n*=0.0929;return Math.round(n).toLocaleString("en")+" m²"+(ft?" (conv.)":"")};
+const countryName=s=>{const c=(S.countries.length?S.countries:FALLBACK_COUNTRIES).find(c=>c.s===s);return c?c.n:s.replace(/-/g," ")};
+const EMBEDDED=(()=>{try{return window.top!==window.self}catch(e){return true}})();
+
+async function getJSON(url,opt){
+  let last;
+  for(let i=0;i<2;i++){
+    try{const r=await fetch(url,opt);if(!r.ok&&r.status!==400)throw new Error("HTTP "+r.status);return r}
+    catch(e){last=e;await new Promise(z=>setTimeout(z,600))}
+  }
+  throw last;
+}
+
+/* ===================== synonyms, spelling & typo tolerance (local) ===================== */
+const SYN=[
+ ["timber","wood","wooden","clt","glulam","mass timber","cross laminated timber"],
+ ["house","home","residence","villa","dwelling"],["housing","apartments","residential","flats","apartment"],
+ ["library","libraries","mediatheque","media library"],["museum","gallery","exhibition"],
+ ["theatre","theater","playhouse","auditorium"],["centre","center"],["culture house","cultural centre","cultural center"],
+ ["community centre","community center","community hall","village hall"],["school","schoolhouse","academy"],
+ ["kindergarten","nursery","preschool","daycare"],["university","campus","college"],["office","workplace","headquarters"],
+ ["cabin","hut","cottage","lodge"],["chapel","church","sanctuary"],["sauna","bathhouse","spa"],["pavilion","folly","kiosk"],
+ ["courtyard","patio","atrium","cloister"],["dome","cupola","geodesic","vault"],["roof","roofing","canopy"],
+ ["facade","façade","envelope","cladding"],["staircase","stairs","stair","stairway"],["window","glazing","fenestration"],
+ ["bridge","footbridge"],["tower","high-rise","skyscraper"],["renovation","refurbishment","retrofit"],
+ ["adaptive reuse","conversion","transformation"],["extension","addition","annex"],["landscape","park","garden"],
+ ["path","trail","walkway","promenade"],["terrain","slope","hillside","topography"],["brick","masonry"],
+ ["rammed earth","earth","adobe","cob"],["steel","metal"],["glass","glazed"],["straw","straw bale"],
+ ["detail","junction","connection","joint"],["section","cross section"],["plan","floor plan","layout"],
+ ["small","compact","tiny","micro"],["modular","prefab","prefabricated"],["sustainable","low carbon","green","eco"],
+ ["colour","color"],["grey","gray"],["aluminium","aluminum"],["metre","meter"],["neighbourhood","neighborhood"],
+ ["nordic","scandinavian"],["daylight","natural light","skylight"],["shell","thin shell"],["vernacular","traditional"]
+];
+const EXTRA_VOCAB="architecture architect building buildings design interior interiors exterior structure structural light forest lake sea coastal coast mountain arctic desert urban rural village city public private social cultural education residential commercial industrial warehouse factory station airport hospital clinic hotel restaurant cafe market shop store stadium gym pool swimming hall concrete stone wood glass brick steel fabric plastic bamboo cork copper zinc corten terracotta ceramic tile render plaster lime earth clay hemp timber frame frames column columns beam beams truss trusses arch arches vault vaults wall walls floor floors ceiling ceilings stair roof roofs facade window windows door doors balcony terrace garden yard pavilion tower bridge pier jetty harbour harbor waterfront river lakeside hillside forest woodland meadow island villa cabin chalet barn shed hut greenhouse winery chapel church mosque temple synagogue cemetery crematorium memorial monument museum gallery library theatre cinema concert opera school kindergarten university campus dormitory office headquarters coworking laboratory studio workshop retail housing apartment apartments townhouse rowhouse cohousing hostel residence elderly care hospice clinic hospital spa sauna bath baths swimming sports gymnasium arena stadium playground park square plaza street promenade boardwalk station terminal parking infrastructure energy plant dam detail details junction section sections elevation plan plans axonometric diagram model sketch render prefabricated modular parametric geodesic dome shell membrane tensile cantilever courtyard atrium cloister patio skylight daylight shading louvre louvers brise soleil ventilation passive insulation thermal green roof terrace minimal brutalist modernist contemporary vernacular traditional nordic scandinavian japanese mediterranean tropical alpine desert".split(" ");
+const SYN_IDX={};SYN.forEach((g,i)=>g.forEach(w=>{(SYN_IDX[w]=SYN_IDX[w]||[]).push(i)}));
+let VOCAB=null;
+function vocab(){
+  if(VOCAB)return VOCAB;const v=new Set();
+  SYN.flat().forEach(p=>p.split(" ").forEach(w=>v.add(w)));EXTRA_VOCAB.forEach(w=>w&&v.add(w));
+  Object.values(FN_KEYWORD).forEach(p=>p.split(" ").forEach(w=>v.add(w)));FUNCTIONS.forEach(f=>f[0].toLowerCase().split(/[^a-z]+/).forEach(w=>w&&v.add(w)));
+  MATERIALS.forEach(m=>v.add(m.toLowerCase()));(S.countries.length?S.countries:FALLBACK_COUNTRIES).forEach(c=>c.n.toLowerCase().split(/\s+/).forEach(w=>v.add(w)));
+  return VOCAB=v;
+}
+function osa(a,b){const m=a.length,n=b.length;if(Math.abs(m-n)>2)return 9;const d=[];for(let i=0;i<=m;i++){d[i]=[i];}for(let j=0;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1)}return d[m][n]}
+function fixWord(w){
+  const V=vocab();if(w.length<4||V.has(w)||/\d/.test(w))return w;
+  const base=w.replace(/(ies|es|s)$/,"");if(V.has(base)||V.has(base+"y"))return w;
+  const lim=w.length<=6?1:2;let best=null,bd=9;
+  for(const v of V){if(Math.abs(v.length-w.length)>lim)continue;const d=osa(w,v);if(d<bd||(d===bd&&best&&v[0]===w[0]&&best[0]!==w[0])){bd=d;best=v}}
+  return bd<=lim?best:w;
+}
+function processQuery(q){
+  const raw=String(q||"").trim();if(!raw)return {main:"",variants:[""],fixes:[],alts:[]};
+  const words=raw.toLowerCase().split(/\s+/);const fixes=[];
+  const fixed=words.map(w=>{const f=fixWord(w);if(f!==w)fixes.push([w,f]);return f});
+  const main=fixed.join(" ");
+  // synonym variants: replace the first word/phrase that has synonyms
+  const alts=[];
+  for(let i=0;i<fixed.length&&alts.length<2;i++){
+    const two=fixed[i]+" "+(fixed[i+1]||"");const key=SYN_IDX[two]?two:SYN_IDX[fixed[i]]?fixed[i]:null;if(!key)continue;
+    const span=key.split(" ").length;
+    const others=new Set([...fixed.slice(0,i),...fixed.slice(i+span)]);
+    SYN_IDX[key].forEach(gi=>SYN[gi].forEach(alt=>{if(alt!==key&&alts.length<2&&!/^(earth|green|metal|model)$/.test(alt)&&!alt.split(" ").some(w=>others.has(w))){const v=[...fixed.slice(0,i),alt,...fixed.slice(i+span)].join(" ");if(v!==main&&!alts.includes(v))alts.push(v)}}));
+  }
+  return {main,variants:[main,...alts],fixes,alts};
+}
+function stemWP(q){return String(q||"").split(/\s+/).map(w=>w.length>4?w.replace(/ies$/,"").replace(/(?<=[a-z]{3})y$/,"").replace(/(?<![s])s$/,""):w).join(" ")}
+
+/* ===================== query building ===================== */
+function adPath(){
+  let p="";
+  if(S.cat)p+="/categories/"+S.cat;
+  if(S.country)p+="/country/"+S.country;
+  if(S.mat)p+="/materials/"+S.mat.toLowerCase();
+  if(S.year)p+="/year/"+S.year;
+  if(S.amin)p+="/min_area/"+S.amin;
+  if(S.amax)p+="/max_area/"+S.amax;
+  return p;
+}
+function adImgPath(){
+  let p="";
+  if(S.cat)p+="/categories/"+S.cat;
+  if(S.country)p+="/country/"+S.country;
+  if(S.mat)p+="/materials/"+S.mat.toLowerCase();
+  return p+"/image_type/drawings";
+}
+function wpQuery(qv,noStem){
+  const base=qv!=null?qv:(S.qp?S.qp.main:S.q);const parts=[noStem?base:stemWP(base)];
+  if(S.cat)parts.push(FN_KEYWORD[S.cat]||S.cat.replace(/-/g," "));
+  if(S.mat)parts.push(MAT_KEYWORD[S.mat]||S.mat);
+  if(S.country)parts.push(countryName(S.country));
+  if(S.kind==="details")parts.push("detail");
+  return parts.filter(Boolean).join(" ").trim();
+}
+
+/* ===================== normalizers ===================== */
+function normAD(r){
+  const imgs=[];const add=o=>{if(o&&(o.url_large||o.url_medium)){const u=o.url_large||o.url_medium;if(!imgs.some(x=>x.l===u))imgs.push({m:o.url_medium||u,l:u,s:o.url_small||o.url_medium||u})}};
+  add(r.featured_images);(r.miniatures||[]).forEach(add);
+  const t=r.title||"";const [name,...rest]=t.split(" / ");
+  return {id:"ad-"+r.document_id,adid:String(r.document_id),office:((r.offices||[])[0]&&(r.offices[0].url||"").split("/office/")[1]||"").split(/[?#/]/)[0],country:((r.location||"").split(",").pop()||"").trim(),src:"archdaily",name:name.trim(),by:(r.offices||[]).map(o=>o.name).join(", ")||rest.join(" / "),
+    loc:r.location||"",year:r.year||"",date:r.publication_date||"",area:r.project_area||"",cats:(r.categories||[]).map(c=>c.name),
+    photo:(r.photographers||[]).map(p=>p.name||p).join(", "),url:(r.url||"").split("?")[0],imgs,desc:r.meta_description||""};
+}
+function normWP(k,p){
+  const fm=p._embedded&&p._embedded["wp:featuredmedia"]&&p._embedded["wp:featuredmedia"][0];
+  const sz=(fm&&fm.media_details&&fm.media_details.sizes)||{};
+  const pick=(...ns)=>{for(const n of ns){if(sz[n]&&sz[n].source_url)return sz[n].source_url}return fm&&fm.source_url||""};
+  const L=pick("large","1536x1536","full","medium_large"), M=pick("medium_large","large","full");
+  const terms=((p._embedded&&p._embedded["wp:term"])||[]).flat().filter(t=>t&&(t.taxonomy==="post_tag"||t.taxonomy==="category")&&!/^(all|architecture|exclusives|news|featured|uncategorized|projects?)$/i.test(t.name)).map(t=>dec(t.name));
+  const title=dec(p.title&&p.title.rendered);
+  const m=title.match(/^(.*?)\s+(?:by|\/|\|)\s+(.+)$/);
+  return {id:k+"-"+p.id,src:k,wpid:p.id,name:m&&m[1].length>3?m[1]:title,by:m&&m[1].length>3?m[2]:"",loc:"",year:"",date:(p.date||"").slice(0,10),area:"",cats:terms.slice(0,3),
+    photo:"",url:p.link,imgs:L?[{m:M||L,l:L,s:M||L}]:[],desc:dec((p.excerpt&&p.excerpt.rendered||"").replace(/<[^>]+>/g,"")).trim().slice(0,320)};
+}
+
+/* ===================== fetching ===================== */
+function normCommons(pg){
+  const ii=(pg.imageinfo||[])[0]||{};const md=ii.extmetadata||{};
+  const strip=h=>dec(String(h||"").replace(/<[^>]+>/g,"")).trim();
+  const name=strip(md.ObjectName&&md.ObjectName.value)||pg.title.replace(/^File:/,"").replace(/\.[a-z]+$/i,"").replace(/[_-]+/g," ");
+  const lic=strip(md.LicenseShortName&&md.LicenseShortName.value);const art=strip(md.Artist&&md.Artist.value).slice(0,80);
+  const im={m:ii.thumburl||ii.url,l:ii.thumburl||ii.url,s:ii.thumburl||ii.url};
+  const isDet=S.kind==="details";
+  return {id:"wc-"+pg.pageid,src:"commons",name:name.slice(0,90),by:art,loc:"",year:(strip(md.DateTimeOriginal&&md.DateTimeOriginal.value).match(/\b(1[5-9]\d\d|20\d\d)\b/)||[])[0]||"",date:"",area:"",
+    cats:[lic||"see licence"].filter(Boolean),photo:art,lic,url:ii.descriptionurl||("https://commons.wikimedia.org/wiki/"+encodeURIComponent(pg.title)),
+    imgs:isDet?[]:[im],dr:isDet?[{...im,det:true,cap:name.slice(0,80)}]:[],det:isDet?[{...im,det:true,cap:name.slice(0,80)}]:[],drState:"done",desc:strip(md.ImageDescription&&md.ImageDescription.value).slice(0,320)};
+}
+async function fetchADDetails(page){
+  // with search words: find matching projects, then pull their detail drawings
+  const qm=S.qp?S.qp.main:S.q;
+  if(qm){
+    const j=await (await getJSON(AD_API+adPath()+"?q="+encodeURIComponent(qm)+(page>1?"&page="+page:""))).json();
+    const ps=(j.results||[]).filter(r=>!r.document_type||r.document_type==="projects").map(normAD);
+    await Promise.all(ps.map(p=>fetchDrawings(p).catch(()=>{}).then(()=>{p.drState="done"})));
+    return {total:j.total_docs||0,items:ps.filter(p=>(p.det||[]).length),scanned:ps.length};
+  }
+  // no words: scan the drawings stream (5 pages per load) and keep the detail drawings
+  const groups={};let total=0,scanned=0;
+  const pages=[1,2,3,4,5,6,7,8].map(i=>(page-1)*8+i);
+  const res=await Promise.all(pages.map(n=>getJSON(IMG_API+adImgPath()+(n>1?"?page="+n:"")).then(r=>r.json()).catch(()=>null)));
+  res.forEach(j=>{if(!j)return;total=j.total_docs||total;(j.results||[]).forEach(g=>{scanned++;
+    const pi=g.parent_info||{};const t=String(pi.title||"");const [name,...rest]=t.split(" / ");
+    const p=groups[pi.id]||(groups[pi.id]={id:"ad-"+pi.id,adid:String(pi.id),src:"archdaily",name:name.trim(),by:rest.join(" / "),loc:"",year:pi.year||"",date:"",area:"",cats:(g.categories||[]).filter(c=>c.level===2).slice(0,2).map(c=>c.name),photo:"",url:String(pi.url||"").split("?")[0],imgs:[],dr:[],drState:"done",desc:""});
+    g.images.forEach(i=>{const x=adImg(i,p);if(x.l&&!p.dr.some(y=>y.l===x.l))p.dr.push(x)});
+    p.det=p.dr.filter(x=>x.det);
+  })});
+  return {total:Math.round(total/40),items:Object.values(groups).filter(p=>p.det.length),scanned,approx:true};
+}
+function fetchSource(k,page){
+  const s=SRC[k];
+  const pg0=S.roulette&&S.roulette.start?S.roulette.start[k]||0:0;page=page+pg0;
+  if(s.type==="commons"){
+    const base=wpQuery(null,true).replace(/\bdetail\b/,"").trim();
+    const q=(base?base+(S.kind==="details"?" construction detail":" architecture"):(S.kind==="details"?"construction detail":"architecture"))+" filetype:bitmap";
+    const url=`https://commons.wikimedia.org/w/api.php?origin=*&action=query&format=json&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=12&gsroffset=${(page-1)*12}&gsrinfo=totalhits&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1400`;
+    return getJSON(url).then(r=>r.json()).then(j=>{
+      const pages=Object.values((j.query&&j.query.pages)||{}).sort((a,b)=>(a.index||0)-(b.index||0));
+      return {total:(j.query&&j.query.searchinfo&&j.query.searchinfo.totalhits)||pages.length,items:pages.map(normCommons).filter(p=>p.imgs.length||p.dr.length),end:!j.continue};
+    });
+  }
+  if(s.type==="ad"&&S.kind==="details")return fetchADDetails(page);
+  const V=(S.qp&&S.qp.variants)||[S.q];
+  if(s.type==="ad"){
+    return Promise.all(V.slice(0,3).map((qv,vi)=>getJSON(AD_API+adPath()+"?q="+encodeURIComponent(qv)+(page>1?"&page="+page:"")).then(r=>r.json()).catch(e=>{if(vi===0)throw e;return null}))).then(js=>{
+      const j=js[0]||{};const ag=j.aggregations||{};
+      if(!S.country&&ag.country&&ag.country.length>S.countries.length*0.5){S.countries=ag.country.map(c=>({n:c.name,s:c.slug,c:c.doc_count}));persist()}
+      return {total:Math.max(...js.map(x=>x&&x.total_docs||0)),items:mergeLists(js.map(x=>x?(x.results||[]).filter(r=>!r.document_type||r.document_type==="projects").map(normAD):[]))};
+    });
+  }
+  const one=qv=>{const q=wpQuery(qv);
+    const url=`https://${s.host}/wp-json/wp/v2/posts?per_page=12&page=${page}${s.extra||""}&_embed=wp:featuredmedia,wp:term&_fields=id,date,link,title,excerpt,_links,_embedded`+(q?"&search="+encodeURIComponent(q)+"&orderby=relevance":"");
+    return getJSON(url).then(async r=>{if(r.status===400)return {total:0,items:[],end:true};const j=await r.json();return {total:+r.headers.get("x-wp-total")||0,items:(Array.isArray(j)?j:[]).map(p=>normWP(k,p))}});};
+  return Promise.all(V.slice(0,2).map((qv,vi)=>one(qv).catch(e=>{if(vi===0)throw e;return {total:0,items:[],end:true}}))).then(rs=>({total:rs.reduce((a,r)=>a+r.total,0),items:mergeLists(rs.map(r=>r.items)),end:rs.every(r=>r.end||!r.items.length)}));
+}
+function mergeLists(lists){const out=[],seen=new Set();const max=Math.max(0,...lists.map(l=>l.length));for(let i=0;i<max;i++)lists.forEach(l=>{const x=l[i];if(x&&!seen.has(x.id)){seen.add(x.id);out.push(x)}});return out}
+function wpIgnoresFilters(){return !!(S.year||S.amin||S.amax)}
+async function search(){
+  if(S.roulette&&!(S.cat===FUNCTIONS.find(f=>f[0]===S.roulette.f)[1]&&S.mat===S.roulette.mat&&!S.q))S.roulette=null;
+  S.qp=S.exact?{main:S.q,variants:[S.q],fixes:[],alts:[]}:processQuery(S.q);
+  const seq=++S.seq;S.res={};
+  const keys=SOURCES.filter(s=>S.on[s.k]).map(s=>s.k);
+  keys.forEach(k=>S.res[k]={items:[],page:1,total:0,loading:true,err:"",done:false});
+  renderSide();renderMain();
+  await Promise.all(keys.map(k=>loadSource(k,seq)));
+}
+async function loadSource(k,seq){
+  const R=S.res[k];if(!R)return;
+  R.loading=true;
+  try{
+    const d=await fetchSource(k,R.page);
+    if(seq!==S.seq)return;
+    const fresh=d.items.filter(f=>!R.items.some(x=>x.id===f.id));
+    R.items=R.items.concat(fresh);R.total=d.total;R.approx=d.approx;
+    R.done=d.end||(d.scanned!=null?d.scanned===0:(!d.items.length||R.items.length>=d.total));
+    // details mode: keep scanning automatically until a few results appear (max 3 extra rounds)
+    if(S.kind==="details"&&d.scanned!=null&&R.items.length<6&&!R.done&&(R.auto=(R.auto||0)+1)<=3&&seq===S.seq){R.page++;R.loading=false;renderSideCounts();renderMain();return loadSource(k,seq)}
+  }catch(e){if(seq!==S.seq)return;R.err=e&&e.message||"failed"}
+  R.loading=false;
+  if(seq===S.seq){renderSideCounts();renderMain()}
+}
+function loadMore(){
+  const seq=S.seq;
+  Object.entries(S.res).forEach(([k,R])=>{if(!R.loading&&!R.done&&!R.err){R.page++;loadSource(k,seq)}});
+  renderMain();
+}
+function merged(){
+  const lists=SOURCES.filter(s=>S.res[s.k]).map(s=>S.res[s.k].items);
+  if(S.order==="new"){return lists.flat().sort((a,b)=>String(b.date||b.year).localeCompare(String(a.date||a.year)))}
+  const out=[];const max=Math.max(0,...lists.map(l=>l.length));
+  for(let i=0;i<max;i++)lists.forEach(l=>{if(l[i])out.push(l[i])});
+  return out;
+}
+const anyLoading=()=>Object.values(S.res).some(r=>r.loading);
+const anyMore=()=>Object.values(S.res).some(r=>!r.done&&!r.err&&(r.items.length||S.kind==="details"));
+
+/* ===================== smart search (rule-based, runs locally) ===================== */
+const FN_WORDS=[[/community (hall|cent(er|re)|house)|village hall|parish hall/,"community-center"],[/cultural (cent(er|re)|house)|culture house|kulturhus/,"cultural-center"],[/librar(y|ies)/,"library"],[/museum/,"museum"],[/galler(y|ies)/,"gallery"],[/pavilion/,"pavilion"],[/theat(er|re)|playhouse/,"theater"],[/concert|music hall|philharmon/,"concert-house"],[/visitor cent(er|re)/,"visitor-center"],[/kindergarten|nursery|preschool|day ?care/,"kindergarten"],[/school/,"schools"],[/universit|campus|faculty/,"university"],[/dorm|student hous/,"dorms"],[/social hous/,"social-housing"],[/apartment|flats\b/,"apartments"],[/housing|residential block/,"housing"],[/office/,"office-buildings"],[/mixed[- ]use/,"mixed-use-architecture"],[/hotel/,"hotels"],[/cabin|lodge|hut\b|cottage/,"cabins-and-lodges"],[/restaurant|caf[eé]|bistro/,"restaurant"],[/town hall|city hall/,"town-and-city-hall"],[/hospital/,"hospital"],[/clinic/,"clinic"],[/sauna/,"sauna"],[/spa\b|bath ?house|therm/,"spa"],[/chapel/,"chapel"],[/church/,"churches"],[/memorial|cemetery/,"memorial-center"],[/sports hall|gym/,"gymnasium"],[/swimming|pool\b/,"swimming-pool"],[/stadium|sport/,"sports-architecture"],[/park\b/,"park"],[/square|plaza|public space/,"public-space"],[/landscape|urbanism/,"landscape-and-urbanism"],[/adaptive reuse|conversion|transformation/,"adaptive-reuse"],[/extension/,"extension"],[/renovation|refurbish/,"renovation"],[/bridge/,"pedestrian-bridge"],[/station/,"train-station"],[/tower|skyscraper|high[- ]rise/,"skyscrapers"],[/install/,"installation"],[/villa|house|home|dwelling|residence/,"houses"]];
+const MAT_WORDS=[[/timber|wood|clt|glulam|mass timber|log/,"Wood"],[/concrete|brutalis/,"Concrete"],[/steel/,"Steel"],[/glass|glazed/,"Glass"],[/brick/,"Brick"],[/stone|marble|granite|limestone/,"Stone"],[/fabric|tensile|membrane/,"Fabric"]];
+const ADJ={swedish:"sweden",norwegian:"norway",danish:"denmark",finnish:"finland",icelandic:"iceland",german:"germany",french:"france",italian:"italy",spanish:"spain",portuguese:"portugal",dutch:"netherlands",swiss:"switzerland",austrian:"austria",japanese:"japan",chinese:"china",korean:"south-korea",mexican:"mexico",chilean:"chile",ukrainian:"ukraine",polish:"poland",british:"united-kingdom",english:"united-kingdom",american:"united-states",canadian:"canada",australian:"australia",dubai:"united-arab-emirates",uae:"united-arab-emirates",emirates:"united-arab-emirates","abu dhabi":"united-arab-emirates",usa:"united-states",uk:"united-kingdom",slovak:"slovakia"};
+const STOP=new Set("a an the in on at of for with and or to by from near into inside around about like that this some small large big new old m2 m² sqm square meters metres meter metre built completed project projects building buildings design designed architecture reference references precedent precedents i we want need looking find show me example examples".split(" "));
+function smartParse(text){
+  let t=" "+text.toLowerCase().replace(/[“”"]/g," ")+" ";const got={};const used=[];
+  // area
+  const toN=x=>{x=x.replace(/,/g,"");let n=parseFloat(x);if(/k$/.test(x))n*=1000;return n};
+  let m=t.match(/(\d[\d.,]*k?)\s*(?:-|–|to)\s*(\d[\d.,]*k?)\s*(m2|m²|sqm|square ?met(?:er|re)s?)/);
+  if(m){got.amin=Math.round(toN(m[1]));got.amax=Math.round(toN(m[2]));used.push(m[0])}
+  else if((m=t.match(/(\d[\d.,]*k?)\s*(m2|m²|sqm|square ?met(?:er|re)s?)/))){const n=toN(m[1]);got.amin=Math.round(n*0.6);got.amax=Math.round(n*1.5);used.push(m[0])}
+  // year
+  if((m=t.match(/\b(19[5-9]\d|20[0-2]\d)\b/))){got.year=m[1];used.push(m[0])}
+  // function
+  for(const [re,slug] of FN_WORDS){const x=t.match(re);if(x){got.cat=slug;used.push(x[0]);break}}
+  // material
+  for(const [re,mat] of MAT_WORDS){const x=t.match(re);if(x){got.mat=mat;used.push(x[0]);break}}
+  // country
+  const cl=(S.countries.length?S.countries:FALLBACK_COUNTRIES);
+  for(const c of cl){const n=c.n.toLowerCase();if(n.length>3&&t.includes(" "+n)){got.country=c.s;used.push(n);break}}
+  if(!got.country)for(const [w,slug] of Object.entries(ADJ)){if(new RegExp("\\b"+w+"\\b").test(t)&&cl.some(c=>c.s===slug)){got.country=slug;used.push(w);break}}
+  // remaining descriptive words → keywords
+  let rest=t;used.forEach(u=>rest=rest.replace(u," "));
+  const words=rest.replace(/[^a-zà-ž0-9\- ]/gi," ").split(/\s+/).filter(w=>w&&!STOP.has(w)&&!/^\d+$/.test(w));
+  got.q=[...new Set(words)].slice(0,4).join(" ");
+  return got;
+}
+function smartSearch(text){
+  text=(text||"").trim();if(!text)return;
+  const g=smartParse(text);
+  Object.assign(S,{q:g.q||"",cat:g.cat||"",mat:g.mat||"",country:g.country||"",year:g.year||"",amin:g.amin?String(g.amin):"",amax:g.amax?String(g.amax):"",bucket:null});
+  S.smart={text,g};S.view="results";$("#boardBtn").classList.remove("on");
+  search();
+}
+/* ===================== sidebar ===================== */
+function renderSide(){
+  const sd=$("#side");
+  if(S.view==="board"){sd.innerHTML=`<div class="fgroup"><div class="flabel">Your board</div><div class="note">Projects you bookmark are kept here in this browser with your notes and collections. <b>Copy as list</b> exports them with links.</div></div><button class="reset" id="back">← Back to results</button>`;sd.querySelector("#back").onclick=()=>{S.view="results";$("#boardBtn").classList.remove("on");renderSide();renderMain()};return}
+  const cl=S.countries.length?S.countries:FALLBACK_COUNTRIES;
+  sd.innerHTML=`
+  <div class="fgroup"><div class="flabel">Sources <button id="allSrc">${SOURCES.every(s=>S.on[s.k])?"none":"all"}</button></div>
+    <div class="srcs">${SOURCES.map(s=>`<div class="srow ${S.on[s.k]?"on":""}" data-src="${s.k}" style="--c:${s.c}"><span class="bx"></span><b>${s.n}${s.note?` <span class="ad">${s.note}</span>`:""}</b><small data-cnt="${s.k}"></small></div>`).join("")}</div></div>
+  <div class="fgroup"><div class="flabel">Function ${S.cat?`<button data-clr="cat">clear</button>`:""}</div>
+    <div class="chips">${FUNCTIONS.map(([n,s])=>`<button class="chip ${S.cat===s?"on":""}" data-cat="${s}">${n}</button>`).join("")}</div></div>
+  <div class="fgroup"><div class="flabel"><span>Area · m² <span class="ad">ArchDaily</span></span> ${(S.amin||S.amax)?`<button data-clr="area">clear</button>`:""}</div>
+    <div class="range"><input id="amin" inputmode="numeric" placeholder="min" value="${esc(S.amin)}"><span>–</span><input id="amax" inputmode="numeric" placeholder="max" value="${esc(S.amax)}"></div>
+    <div class="buckets">${AREA_B.map((b,i)=>`<button data-b="${i}" class="${S.bucket===i?"on":""}">${b[0]}</button>`).join("")}</div></div>
+  <div class="fgroup"><div class="flabel">Country ${S.country?`<button data-clr="country">clear</button>`:""}</div>
+    <select class="sel" id="country"><option value="">Any country</option>${cl.slice().sort((a,b)=>a.n.localeCompare(b.n)).map(c=>`<option value="${esc(c.s)}" ${S.country===c.s?"selected":""}>${esc(c.n)}</option>`).join("")}</select></div>
+  <div class="fgroup"><div class="flabel">Material ${S.mat?`<button data-clr="mat">clear</button>`:""}</div>
+    <div class="chips">${MATERIALS.map(m=>`<button class="chip ${S.mat===m?"on":""}" data-mat="${m}">${m}</button>`).join("")}</div></div>
+  <div class="fgroup"><div class="flabel"><span>Year completed <span class="ad">ArchDaily</span></span> ${S.year?`<button data-clr="year">clear</button>`:""}</div>
+    <select class="sel" id="year"><option value="">Any year</option>${YEARS.map(y=>`<option ${String(S.year)===String(y)?"selected":""}>${y}</option>`).join("")}</select></div>
+  <button class="reset" id="reset">Reset filters</button>
+  <p class="note" style="margin-top:16px">ArchDaily supports every filter exactly. For the other sites, function, material and country are added to the search words, and area/year can't be applied.</p>`;
+  sd.querySelectorAll("[data-src]").forEach(r=>r.onclick=()=>{S.on[r.dataset.src]=!S.on[r.dataset.src];persist();search()});
+  sd.querySelector("#allSrc").onclick=()=>{const all=SOURCES.every(s=>S.on[s.k]);SOURCES.forEach(s=>S.on[s.k]=!all);if(all)S.on.archdaily=true;persist();search()};
+  sd.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{S.cat=S.cat===b.dataset.cat?"":b.dataset.cat;search()});
+  sd.querySelectorAll("[data-mat]").forEach(b=>b.onclick=()=>{S.mat=S.mat===b.dataset.mat?"":b.dataset.mat;search()});
+  sd.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{const i=+b.dataset.b;if(S.bucket===i){S.bucket=null;S.amin=S.amax=""}else{S.bucket=i;S.amin=AREA_B[i][1]?String(AREA_B[i][1]):"";S.amax=AREA_B[i][2]?String(AREA_B[i][2]):""}search()});
+  sd.querySelectorAll("[data-clr]").forEach(b=>b.onclick=()=>{const k=b.dataset.clr;if(k==="area"){S.amin=S.amax="";S.bucket=null}else S[k]="";search()});
+  let at;["amin","amax"].forEach(k=>{const el=sd.querySelector("#"+k);el.oninput=()=>{S[k]=el.value.replace(/\D/g,"");S.bucket=null;clearTimeout(at);at=setTimeout(search,700)}});
+  sd.querySelector("#country").onchange=e=>{S.country=e.target.value;search()};
+  sd.querySelector("#year").onchange=e=>{S.year=e.target.value;search()};
+  sd.querySelector("#reset").onclick=()=>{Object.assign(S,{cat:"",country:"",mat:"",year:"",amin:"",amax:"",bucket:null});S.smart=null;search()};
+  renderSideCounts();
+}
+function renderSideCounts(){
+  SOURCES.forEach(s=>{const el=document.querySelector(`[data-cnt="${s.k}"]`);if(!el)return;const R=S.res[s.k];
+    el.innerHTML=!S.on[s.k]||!R?"":R.loading&&!R.items.length?`<span class="sp" style="display:inline-block"></span>`:R.err?`<span title="${esc(R.err)}" style="color:var(--brick)">offline</span>`:(S.kind==="details"&&s.k==="archdaily"?R.items.length+(R.done?"":"+"):(R.total?R.total.toLocaleString("en"):"0"))});
+}
+
+/* ===================== cards ===================== */
+const bmk=on=>on?`<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12v18l-6-4-6 4z"/></svg>`:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg>`;
+function slides(p){
+  const ph=p.imgs.map(x=>({...x,dw:false})), dw=(p.dr||[]).map(x=>({...x,dw:true}));
+  if(S.kind==="details"){const det=dw.filter(x=>x.det),oth=dw.filter(x=>!x.det);return [...det,...oth,...ph]}
+  return S.preview==="drawings"?[...dw,...ph]:[...ph,...dw];
+}
+function phInner(p){
+  const L=slides(p);const sv=!!S.board[p.id];const s=SRC[p.src]||{n:p.src,c:"#1D3A30"};
+  const nd=(p.dr||[]).length;
+  return `${L.length?L.map((im,i)=>`<img src="${esc(im.m)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer" class="${i?"":"cur"}${im.dw?" dw":""}" style="opacity:${i?0:1}" data-dw="${im.dw?1:0}" data-det="${im.det?1:0}">`).join(""):`<div class="noimg">no photo</div>`}
+     ${L.length>1?`<div class="zones">${L.map((_,i)=>`<span data-z="${i}"></span>`).join("")}</div><div class="dots">${L.map((im,i)=>`<i class="${i?"":"on"}" style="${im.dw?"border-radius:1px":""}"></i>`).join("")}</div>`:""}
+     ${p.year?`<span class="badge">${esc(p.year)}</span>`:p.date?`<span class="badge">${esc(p.date.slice(0,4))}</span>`:""}
+     ${S.board[p.id]&&(S.board[p.id].col||"").trim()?`<span class="colbadge" title="Collection">${esc(S.board[p.id].col.trim())}</span>`:""}
+     <span class="src" style="background:${s.c}e6">${esc(s.n)}${p.imgs.length?` · ${p.imgs.length} photo${p.imgs.length===1?"":"s"}`:""}${(p.det||[]).length?` · ${p.det.length} detail${p.det.length===1?"":"s"}`:""}${nd&&nd>(p.det||[]).length?` · ${nd-(p.det||[]).length} drawing${nd-(p.det||[]).length===1?"":"s"}`:p.drState==="loading"?" · …":""}</span>
+     <span class="dwtag ${L[0]&&L[0].dw?"on":""}">${L[0]&&L[0].det?"detail":"drawing"}</span>
+     <button class="save ${sv?"on":""}" data-save="${esc(p.id)}" title="${sv?"Remove from board":"Save to board"}">${bmk(sv)}</button>
+     ${S.view==="board"?`<button class="cmpbtn ${S.cmp.includes(p.id)?"on":""}" data-cmp="${esc(p.id)}" title="Add to compare (max 4)">⇄ ${S.cmp.includes(p.id)?"Comparing":"Compare"}</button>`:""}`;
+}
+function card(p){
+  return `<article class="card" data-id="${esc(p.id)}">
+   <div class="ph" data-open="${esc(p.id)}">${phInner(p)}</div>
+   <div class="cb">${p.cats.length?`<div class="cat">${esc(p.cats.slice(0,2).join(" · "))}</div>`:""}
+     <h3><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a></h3>
+     ${p.by?`<div class="by">${esc(p.by)}</div>`:""}
+     ${(p.loc||p.area)?`<div class="meta">${p.loc?`<span><em>⌖ </em>${esc(p.loc)}</span>`:""}${p.area?`<span style="margin-left:auto"><em>▭ </em>${fmtA(p.area)}</span>`:""}</div>`:""}
+     ${p.photo?`<div class="credit">${p.src==="commons"?"":"Photos © "}${esc(p.photo)}${p.lic?" · "+esc(p.lic):""}</div>`:""}
+   </div></article>`;
+}
+function refreshCard(id){
+  document.querySelectorAll(`.card[data-id="${CSS.escape(id)}"] .ph`).forEach(ph=>{const p=findItem(id);if(!p)return;ph.innerHTML=phInner(p);bindPh(ph,id)});
+}
+function bindPh(ph,id){
+  const imgs=[...ph.querySelectorAll("img")];const dots=[...ph.querySelectorAll(".dots i")];const tag=ph.querySelector(".dwtag");
+  const show=i=>{imgs.forEach((im,k)=>{im.style.opacity=k===i?1:0;im.classList.toggle("cur",k===i)});dots.forEach((d,k)=>d.classList.toggle("on",k===i));ph.dataset.cur=i;if(tag){tag.classList.toggle("on",!!(imgs[i]&&imgs[i].dataset.dw==="1"));tag.textContent=imgs[i]&&imgs[i].dataset.det==="1"?"detail":"drawing"}};
+  ph.querySelectorAll("[data-z]").forEach(z=>z.onmouseenter=()=>show(+z.dataset.z));
+  ph.onmouseenter=()=>{clearTimeout(ph._t);ph._t=setTimeout(()=>loadDrawings(id),180)};
+  ph.onmouseleave=()=>{clearTimeout(ph._t);show(0)};
+  imgs.forEach(im=>im.onerror=()=>{im.remove();if(!ph.querySelector("img"))ph.insertAdjacentHTML("afterbegin",`<div class="noimg">no photo</div>`)});
+  const sb=ph.querySelector("[data-save]");if(sb)sb.onclick=e=>{e.stopPropagation();toggleSave(sb.dataset.save)};
+  const cb=ph.querySelector("[data-cmp]");if(cb)cb.onclick=e=>{e.stopPropagation();toggleCmp(cb.dataset.cmp)};
+}
+let IO=null;
+function bindCards(root){
+  if(IO)IO.disconnect();
+  IO=(S.preview==="drawings"||S.kind==="details")&&"IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){IO.unobserve(e.target);loadDrawings(e.target.dataset.id)}}),{rootMargin:"300px"}):null;
+  root.querySelectorAll(".card").forEach(c=>{bindPh(c.querySelector(".ph"),c.dataset.id);if(IO)IO.observe(c)});
+  root.querySelectorAll("[data-open]").forEach(el=>el.onclick=e=>{if(e.target.closest(".save"))return;const p=findItem(el.dataset.open);const L=p?slides(p):[];const i=+(el.dataset.cur||0);openLB(el.dataset.open,"all",null,false,"grid")});
+}
+
+/* ===================== drawings ===================== */
+const IMG_API="https://www.archdaily.com/search/api/v1/us/images";
+const DRAW_FILE=/plan|section|elevat|drawing|diagram|axo|isometr|site[-_]?plan|sketch|layout|grundriss|planta|schnitt|corte|dwg|dessin|drw|floor[-_]?\d|level[-_]?\d/i;
+const DRAW_SHORT=/\b(plans?|sections?|elevations?|drawings?|diagrams?|axonometric|isometric|sketch(es)?|masterplan|site|level \d|floor)\b/i;
+const DRAW_LONG=/\b(floor ?plans?|site ?plans?|ground floor plan|roof plan|architectural (plans?|drawings?)|cross[- ]sections?|longitudinal sections?|section drawings?|elevation drawings?|(north|south|east|west|front|rear|side) elevations?|axonometric|exploded (axo|view)|diagrams?|plans? (of|for) the)\b/i;
+const NOT_DRAW=/open[- ]plan|photograph|photo by/i;
+function isDrawing(file,text,nameWords){
+  let f=file.replace(/\.(jpe?g|png|webp)(\?.*)?$/i,"").toLowerCase();
+  (nameWords||[]).forEach(w=>{if(w.length>1)f=f.split(w).join(" ")});
+  if(DRAW_FILE.test(f)&&!/open-?plan/i.test(f))return true;
+  text=(text||"").trim();if(!text||NOT_DRAW.test(text))return false;
+  return text.length<=60?DRAW_SHORT.test(text):DRAW_LONG.test(text);
+}
+const DET_RE=/\b(details?|detailing|detalles?|détails?|detalhes?|detail[- ]?section|construction (detail|section)|constructive (detail|section)|wall section|facade section|façade section|roof (detail|edge)|eaves|parapet|connections?|junctions?|joints?|joinery|fixing|anchor(age)?|node|sill|lintel|foundation detail|1:5\b|1:10\b|1:20\b)\b/i;
+const DET_FILE=/detail|detalle|detalhe|junction|connection|joint|1-5\b|1-10\b|1-20\b|_det[_-]|-det-/i;
+function isDetail(file,text,nameWords){
+  let f=String(file||"").toLowerCase();(nameWords||[]).forEach(w=>{if(w.length>2)f=f.split(w).join(" ")});
+  if(DET_FILE.test(f))return true;
+  return DET_RE.test(String(text||""));
+}
+const queue=[];let active=0;
+function loadDrawings(id){
+  const p=findItem(id);if(!p||p.drState)return Promise.resolve();
+  p.drState="loading";p.dr=p.dr||[];refreshCard(id);
+  return new Promise(res=>{queue.push(async()=>{try{await fetchDrawings(p)}catch(e){}p.drState="done";refreshCard(id);if(LBid===id)openLB(id,LBtab,null,true);if(S.view==="board"&&S.bview==="compare"&&S.cmp.includes(id)&&!$("#lb").classList.contains("on"))renderBoard();res()});pump()});
+}
+function pump(){while(active<4&&queue.length){active++;const f=queue.shift();f().finally(()=>{active--;pump()})}}
+function adImg(i,p){
+  const sz=i.sizes||{};const cap=String(i.caption||i.alt||"").replace(p&&p.name?p.name:"@@","").replace(/ - Drawings?.*$/i,"").trim();
+  const nameWords=p?(p.name+" "+(p.by||"")).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean):[];
+  return {m:sz.medium||sz.large,l:sz.large||sz.slideshow||sz.medium,s:sz.medium||sz.large,cap:cap.slice(0,80),det:isDetail((sz.large||"").split("/").pop(),cap,nameWords)};
+}
+async function fetchDrawings(p){
+  if(p.src==="archdaily"){
+    if(!p.office)return;
+    const cty=(S.countries.length?S.countries:FALLBACK_COUNTRIES).find(c=>c.n.toLowerCase()===String(p.country||"").toLowerCase());
+    const paths=[`/offices/${p.office}/image_type/drawings`];if(cty)paths.push(`/offices/${p.office}/country/${cty.s}/image_type/drawings`);
+    for(const path of paths){
+      const j=await (await getJSON(IMG_API+path)).json();
+      const g=(j.results||[]).find(z=>z.parent_info&&String(z.parent_info.id)===p.adid);
+      if(g){p.dr=g.images.map(i=>adImg(i,p)).filter(x=>x.l);p.det=p.dr.filter(x=>x.det);p.drTotal=g.total_images;return}
+      if((j.results||[]).length<10)break;
+    }
+    return;
+  }
+  await enrichGallery(p);
+}
+/* ===================== main ===================== */
+function activeChips(){
+  const a=[];const fn=FUNCTIONS.find(f=>f[1]===S.cat);
+  if(S.cat)a.push(["cat",fn?fn[0]:S.cat]);
+  if(S.country)a.push(["country",countryName(S.country)]);
+  if(S.mat)a.push(["mat",S.mat]);if(S.year)a.push(["year",S.year]);
+  if(S.amin||S.amax)a.push(["area",`${S.amin||0}–${S.amax||"∞"} m²`]);
+  return a;
+}
+function smartHTML(){
+  if(!S.smart)return"";const g=S.smart.g;const fn=FUNCTIONS.find(f=>f[1]===g.cat);
+  const parts=[];if(fn)parts.push("Function: "+fn[0]);if(g.mat)parts.push("Material: "+g.mat);if(g.country)parts.push("Country: "+countryName(g.country));if(g.amin||g.amax)parts.push(`Area: ${g.amin||0}–${g.amax||"∞"} m²`);if(g.year)parts.push("Year: "+g.year);if(g.q)parts.push("Words: “"+g.q+"”");
+  return `<div class="smart"><b>✦ Smart search understood</b>${parts.map(p=>`<span class="af" style="padding-right:11px">${esc(p)}</span>`).join("")||"<span>nothing specific — showing latest</span>"}<span class="small">Adjust anything in the sidebar.</span></div>`;
+}
+function renderMain(){
+  const m=$("#main");
+  $("#bc").textContent=Object.keys(S.board).length;
+  document.documentElement.style.setProperty("--cw",{s:"240px",m:"320px",l:"440px"}[S.size]);
+  if(S.view==="board"){renderBoard();return}
+  if(EMBEDDED&&Object.values(S.res).length&&Object.values(S.res).every(r=>r.err)){
+    m.innerHTML=`<div class="empty"><h4>Open this file in your browser</h4>This page is running inside a preview window, which blocks connections to the architecture sites.<br><b style="color:var(--forest)">Download reference-atlas-live.html, then double-click it</b> so it opens in Chrome, Edge or Firefox.</div>`;return}
+  const items=merged();const ac=activeChips();const total=Object.values(S.res).reduce((a,r)=>a+(r.total||0),0);
+  const errs=Object.entries(S.res).filter(([k,r])=>r.err).map(([k])=>SRC[k].n);
+  const title=S.kind==="details"?(S.q?`Details · <i>“${esc(S.qp&&S.qp.main?S.qp.main:S.q)}”</i>`:`Construction <i>details</i>`):(S.q?`<i>“${esc(S.qp&&S.qp.main?S.qp.main:S.q)}”</i>`:`Latest <i>projects</i>`);
+  m.innerHTML=`${rouletteHTML()}${smartHTML()}
+  <div class="mh"><div><h2>${title}</h2><p>${total?total.toLocaleString("en")+" results across "+Object.keys(S.res).length+" source"+(Object.keys(S.res).length>1?"s":""):anyLoading()?"Searching…":""}${items.length?` · showing ${items.length}`:""}</p></div>
+    <div class="tools"><div class="seg2" title="What to show">${[["photos","Photos"],["drawings","Plans & drawings"],["details","Construction details"]].map(([k,l])=>`<button data-prev="${k}" class="${(k==="details"?S.kind==="details":S.kind!=="details"&&S.preview===k)?"on":""}">${l}</button>`).join("")}</div><div class="seg2">${[["mix","Mixed"],["new","Newest"]].map(([k,l])=>`<button data-order="${k}" class="${S.order===k?"on":""}">${l}</button>`).join("")}</div>
+    <div class="seg2">${[["s","S"],["m","M"],["l","L"]].map(([k,l])=>`<button data-size="${k}" class="${S.size===k?"on":""}">${l}</button>`).join("")}</div></div></div>
+  ${S.qp&&(S.qp.fixes.length||S.qp.alts.length)?`<div class="qinfo">${S.qp.fixes.length?`<span>Corrected: ${S.qp.fixes.map(([a,b])=>`<s>${esc(a)}</s> → <b>${esc(b)}</b>`).join(", ")}</span>`:""}${S.qp.alts.length?`<span>Also searching: ${S.qp.alts.map(a=>`<b>${esc(a)}</b>`).join(", ")}</span>`:""}<button id="exactq">Search exactly “${esc(S.q)}”</button></div>`:S.exact&&S.q?`<div class="qinfo"><span>Exact words only.</span><button id="fuzzyq">Turn synonyms & typo fixing back on</button></div>`:""}
+  ${S.kind==="details"?`<p class="small" style="margin:-8px 0 16px;max-width:760px">Construction details: detail drawings and close-ups (junctions, wall & roof sections, joints) from project galleries, plus detail articles and Wikimedia Commons images. Details are rarer than plans, so results build up as it scans — a material or words like <i>CLT roof</i>, <i>facade</i>, <i>window sill</i> help.</p>`:""}
+  ${ac.length?`<div class="active-f">${ac.map(([k,l])=>`<span class="af">${esc(l)}<button data-rm="${k}">×</button></span>`).join("")}</div>`:""}
+  ${errs.length&&errs.length<Object.keys(S.res).length?`<div class="warn">Couldn't reach: ${esc(errs.join(", "))}. Other sources are shown.</div>`:""}
+  ${!Object.keys(S.res).length?`<div class="empty"><h4>No sources selected</h4>Tick at least one site under Sources.</div>`:
+    (!items.length&&!anyLoading()&&S.kind==="details"&&anyMore())?`<div class="empty"><h4>No details in this batch yet</h4>Details are rarer than plans — keep scanning, or add a material or more specific words.<br><button class="btn dark" id="more2" style="margin-top:14px">Scan more</button></div>`:
+    (!items.length&&!anyLoading())?(errs.length===Object.keys(S.res).length?`<div class="empty"><h4>Connection problem</h4>None of the sites could be reached. Check your internet connection, or allow these sites in your ad/privacy blocker.<br><button class="btn dark" id="retry" style="margin-top:14px">Try again</button></div>`:`<div class="empty"><h4>No projects found</h4>Try fewer filters or a broader word.</div>`):
+    `<div class="grid">${items.map(card).join("")}</div>`}
+  ${anyLoading()?`<div class="status"><span class="spin"></span>Loading…</div>`:(anyMore()?`<div class="more"><button class="btn ghost" id="more">Load more</button></div><div id="sentinel"></div>`:"")}`;
+  bindCards(m);
+  m.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{S.size=b.dataset.size;persist();renderMain()});
+  m.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>{const k=b.dataset.prev;
+    if(k==="details"){if(S.kind!=="details"){S.kind="details";persist();search()}return}
+    S.preview=k;if(S.kind==="details"){S.kind="projects";persist();search()}else{persist();renderMain()}});
+  m.querySelectorAll("[data-order]").forEach(b=>b.onclick=()=>{S.order=b.dataset.order;renderMain()});
+  m.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{const k=b.dataset.rm;if(k==="area"){S.amin=S.amax="";S.bucket=null}else S[k]="";search()});
+  const mo=m.querySelector("#more");if(mo)mo.onclick=loadMore;
+  const mo2=m.querySelector("#more2");if(mo2)mo2.onclick=loadMore;
+  const ex=m.querySelector("#exactq");if(ex)ex.onclick=()=>{S.exact=true;search()};
+  const fz=m.querySelector("#fuzzyq");if(fz)fz.onclick=()=>{S.exact=false;search()};
+  const rs=m.querySelector("#respin");if(rs)rs.onclick=spin;
+  const ro=m.querySelector("#rouoff");if(ro)ro.onclick=()=>{S.roulette=null;S.cat="";S.mat="";search()};
+  const rt=m.querySelector("#retry");if(rt)rt.onclick=search;
+  const sn=m.querySelector("#sentinel");if(sn&&"IntersectionObserver" in window){const io=new IntersectionObserver(e=>{if(e[0].isIntersecting){io.disconnect();loadMore()}},{rootMargin:"700px"});io.observe(sn)}
+}
+
+/* ===================== board ===================== */
+function findItem(id){for(const R of Object.values(S.res)){const f=R.items.find(x=>x.id===id);if(f)return f}return S.board[id]&&S.board[id].p}
+function toggleSave(id){
+  if(S.board[id]){delete S.board[id];toast("Removed from board")}
+  else{const p=findItem(id);if(!p)return;S.board[id]={p,note:"",col:"",at:Date.now()};toast("Saved to board")}
+  persist();
+  document.querySelectorAll(`[data-save="${CSS.escape(id)}"]`).forEach(b=>{const on=!!S.board[id];b.classList.toggle("on",on);b.innerHTML=bmk(on)});
+  $("#bc").textContent=Object.keys(S.board).length;
+  if($("#lb").classList.contains("on"))openLB(id,LBtab,null,true);
+}
+function allCols(){const m={};Object.values(S.board).forEach(b=>{const c=(b.col||"").trim()||"Unsorted";m[c]=(m[c]||0)+1});return Object.entries(m).sort((a,b)=>a[0]==="Unsorted"?1:b[0]==="Unsorted"?-1:a[0].localeCompare(b[0]))}
+function boardIds(){
+  let ids=Object.keys(S.board).sort((a,b)=>(S.board[b].at||0)-(S.board[a].at||0));
+  if(S.colf.length)ids=ids.filter(id=>S.colf.includes((S.board[id].col||"").trim()||"Unsorted"));
+  const q=(S.nq||"").trim().toLowerCase();
+  if(q)ids=ids.filter(id=>{const b=S.board[id];return [(b.note||""),b.p.name,b.p.by||"",b.col||""].join(" ").toLowerCase().includes(q)});
+  return ids;
+}
+function toggleCmp(id){
+  const i=S.cmp.indexOf(id);
+  if(i>=0)S.cmp.splice(i,1);else{if(S.cmp.length>=4){toast("Compare holds up to 4 — remove one first");return}S.cmp.push(id);toast("Added to compare ("+S.cmp.length+"/4)")}
+  persist();if(S.view==="board")renderBoard();if($("#lb").classList.contains("on")&&LBid)openLB(LBid,LBtab,null,true);
+}
+function cover(p,preferDw){const ph=p.imgs[0],dw=(p.det&&p.det[0])||(p.dr||[])[0];return preferDw?(dw||ph):(ph||dw)}
+function factRows(p,b){
+  return [["Source",(SRC[p.src]||{}).n||p.src],["Architect",p.by||"—"],["Location",(b&&b.loc)||p.loc||"—"],["Year",p.year||(p.date||"").slice(0,4)||"—"],["Area",p.area?fmtA(p.area):"—"],["Type",(p.cats||[]).slice(0,3).join(", ")||"—"],["Collection",(b&&b.col)||"—"],["Notes",(b&&b.note)||"—"]];
+}
+function renderBoard(){
+  const m=$("#main");const all=Object.keys(S.board);const ids=boardIds();const cols=allCols();const filtering=S.colf.length||(S.nq||"").trim();
+  const head=`<div class="mh"><div><h2>Your <i>board</i></h2><p>${all.length} saved reference${all.length===1?"":"s"}${filtering?` · ${ids.length} shown`:""}</p></div>
+   <div class="tools">${S.bview==="cards"?`<div class="seg2">${[["s","S"],["m","M"],["l","L"]].map(([k,l])=>`<button data-size="${k}" class="${S.size===k?"on":""}">${l}</button>`).join("")}</div>`:""}
+   ${all.length?`<button class="btn ghost" id="copy">Copy as list</button><button class="btn dark" id="pdf">Export PDF</button>`:""}</div></div>
+  <div class="bbar"><div class="bviews">${[["cards","Cards"],["compare","Compare"],["matrix","Precedent matrix"],["map","Map"]].map(([k,l])=>`<button data-bv="${k}" class="${S.bview===k?"on":""}">${l}${k==="compare"&&S.cmp.length?` <span class="n">${S.cmp.length}</span>`:""}</button>`).join("")}</div>
+   ${all.length?`<input class="bsearch" id="nq" type="search" placeholder="Search your notes…" value="${esc(S.nq||"")}">`:""}
+   ${cols.length>1||(cols[0]&&cols[0][0]!=="Unsorted")?`<div class="tagrow"><span class="small">Collection:</span>${cols.map(([c,n])=>`<button class="tagchip ${S.colf.includes(c)?"on":""}" data-cf="${esc(c)}">${esc(c)} <span style="opacity:.6">${n}</span></button>`).join("")}${S.colf.length?`<button class="tagchip" data-cf="">all</button>`:""}</div>`:`<span class="small">Tip: give saved projects a collection (e.g. Dome hall, Seminar 1) to filter by it here.</span>`}</div>`;
+  let body="";
+  if(!all.length)body=`<div class="empty"><h4>Nothing saved yet</h4>Bookmark projects or details from the results.</div>`;
+  else if(S.bview==="cards"){
+    const groups={};ids.forEach(id=>{const c=(S.board[id].col||"").trim()||"Unsorted";(groups[c]=groups[c]||[]).push(id)});
+    const names=Object.keys(groups).sort((a,b)=>a==="Unsorted"?1:b==="Unsorted"?-1:a.localeCompare(b));
+    body=names.map(n=>`<div class="board-col"><h4>${esc(n)} <small>${groups[n].length}</small></h4><div class="grid">${groups[n].map(id=>{const b=S.board[id];return card(b.p).replace(/<\/div><\/article>$/,`${b.note?`<div class="bn">${esc(b.note)}</div>`:""}</div></article>`)}).join("")}</div></div>`).join("")||`<div class="empty"><h4>Nothing matches</h4>Try another collection or search word.</div>`;
+  }else if(S.bview==="compare")body=compareHTML();
+  else if(S.bview==="matrix")body=matrixHTML(ids);
+  else if(S.bview==="map")body=`<div id="map"></div><div class="nomap" id="nomap"></div>`;
+  m.innerHTML=head+body;
+  if(S.bview==="cards")bindCards(m);
+  m.querySelectorAll("[data-bv]").forEach(b=>b.onclick=()=>{S.bview=b.dataset.bv;renderBoard()});
+  m.querySelectorAll("[data-cf]").forEach(b=>b.onclick=()=>{const t=b.dataset.cf;if(!t)S.colf=[];else S.colf=S.colf.includes(t)?S.colf.filter(x=>x!==t):[...S.colf,t];renderBoard()});
+  const nq=m.querySelector("#nq");if(nq){nq.oninput=()=>{S.nq=nq.value;clearTimeout(nq._t);nq._t=setTimeout(()=>{const pos=nq.selectionStart;renderBoard();const n2=$("#nq");if(n2){n2.focus();n2.setSelectionRange(pos,pos)}},250)}}
+  m.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{S.size=b.dataset.size;persist();renderMain()});
+  const cp=m.querySelector("#copy");if(cp)cp.onclick=()=>copyText(boardText(ids),"List copied");
+  const pdf=m.querySelector("#pdf");if(pdf)pdf.onclick=()=>exportPDF(ids);
+  if(S.bview==="compare")bindCompare(m);
+  if(S.bview==="matrix")bindMatrix(m,ids);
+  if(S.bview==="map")renderMap(ids);
+}
+async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(msg||"Copied")}catch(e){toast("Copy not available")}}
+function boardText(ids){
+  return "Reference board\n\n"+ids.map(id=>{const b=S.board[id],p=b.p;return`- ${p.name}${p.by?" — "+p.by:""}${(b.loc||p.loc)?" ("+(b.loc||p.loc)+(p.year?", "+p.year:"")+")":""} [${(SRC[p.src]||{}).n||p.src}]${b.col?" · "+b.col:""}\n  ${p.url}${b.note?"\n  Note: "+b.note.replace(/\n/g," "):""}`}).join("\n");
+}
+/* ---- compare ---- */
+function compareHTML(){
+  const ids=S.cmp.filter(id=>S.board[id]||findItem(id));
+  if(!ids.length)return `<div class="empty"><h4>Pick 2–4 projects to compare</h4>Use the <b>⇄ Compare</b> button on board cards, or in an open project.</div>`;
+  const cols=ids.map(id=>{const p=(S.board[id]&&S.board[id].p)||findItem(id);const b=S.board[id];
+    if(!p.drState&&p.src!=="commons")loadDrawings(id);
+    const ph=p.imgs[0],dw=(p.det&&p.det[0])||(p.dr||[])[0];
+    return `<div class="col">
+      <div class="im" data-open="${esc(id)}">${ph?`<img src="${esc(ph.m||ph.l)}" referrerpolicy="no-referrer"><span class="lbl">photo</span>`:`<div class="noimg">no photo</div>`}</div>
+      <div class="im dw" data-open="${esc(id)}" data-tabopen="drawings">${dw?`<img src="${esc(dw.l)}" referrerpolicy="no-referrer"><span class="lbl">${dw.det?"detail":"plan / drawing"}</span>`:`<div class="noimg" style="font-size:13px">${p.drState==="loading"?"loading drawings…":"no drawings"}</div>`}</div>
+      <div class="rw"><h3>${esc(p.name)}</h3></div>
+      ${factRows(p,b).map(([k,v])=>`<div class="rw"><span>${k}</span>${esc(v)}</div>`).join("")}
+      <div class="rw"><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:var(--teal)">Open source ↗</a></div>
+      <button class="x" data-cmpx="${esc(id)}">✕ Remove from compare</button></div>`}).join("");
+  return `<div class="cmp" style="grid-template-columns:repeat(${ids.length},minmax(220px,1fr))">${cols}</div>`;
+}
+function bindCompare(m){
+  m.querySelectorAll("[data-cmpx]").forEach(b=>b.onclick=()=>toggleCmp(b.dataset.cmpx));
+  m.querySelectorAll(".cmp [data-open]").forEach(el=>el.onclick=()=>openLB(el.dataset.open,el.dataset.tabopen||"all",null,false,"grid"));
+}
+/* ---- matrix ---- */
+let MSORT={k:"at",d:-1};
+const MCOLS=[["name","Project"],["by","Architect"],["loc","Location"],["year","Year"],["area","Area m²"],["type","Type"],["src","Source"],["col","Collection"],["note","Notes"]];
+function mrow(id){const b=S.board[id],p=b.p;return {id,name:p.name,by:p.by||"",loc:b.loc||p.loc||"",year:p.year||(p.date||"").slice(0,4),area:p.area?(fmtA(p.area).replace(/[^\d]/g,"")):"",type:(p.cats||[]).slice(0,3).join(", "),src:(SRC[p.src]||{}).n||p.src,col:b.col||"",note:b.note||"",url:p.url,at:b.at||0,p}}
+function matrixHTML(ids){
+  const rows=ids.map(mrow).sort((a,b)=>{const x=a[MSORT.k],y=b[MSORT.k];const nx=+x,ny=+y;return (!isNaN(nx)&&!isNaN(ny)&&x!==""&&y!==""?(nx-ny):String(x).localeCompare(String(y)))*MSORT.d});
+  return `<div class="tools" style="margin:-6px 0 12px;justify-content:flex-end"><button class="btn ghost" id="mtsv">Copy for Excel / Sheets</button><button class="btn ghost" id="mmd">Copy as Markdown</button></div>
+  <div class="mtx-wrap"><table class="mtx"><thead><tr><th></th>${MCOLS.map(([k,l])=>`<th data-ms="${k}">${l}${MSORT.k===k?(MSORT.d>0?" ↑":" ↓"):""}</th>`).join("")}<th>Link</th></tr></thead><tbody>
+  ${rows.map(r=>{const c=cover(r.p);return `<tr><td class="th">${c?`<img src="${esc(c.s||c.m)}" referrerpolicy="no-referrer" data-open="${esc(r.id)}">`:""}</td><td><b>${esc(r.name)}</b></td><td>${esc(r.by)}</td><td>${esc(r.loc)}</td><td>${esc(r.year)}</td><td>${r.area?Number(r.area).toLocaleString("en"):""}</td><td>${esc(r.type)}</td><td>${esc(r.src)}</td><td style="color:var(--timber);font-weight:600">${esc(r.col)}</td><td class="nt">${esc(r.note)}</td><td><a href="${esc(r.url)}" target="_blank" rel="noopener">open ↗</a></td></tr>`}).join("")}
+  </tbody></table></div>`;
+}
+function bindMatrix(m,ids){
+  m.querySelectorAll("[data-ms]").forEach(th=>th.onclick=()=>{const k=th.dataset.ms;MSORT=MSORT.k===k?{k,d:-MSORT.d}:{k,d:1};renderBoard()});
+  m.querySelectorAll(".mtx [data-open]").forEach(el=>el.onclick=()=>openLB(el.dataset.open,"all",null,false,"grid"));
+  const rows=()=>ids.map(mrow);
+  m.querySelector("#mtsv").onclick=()=>copyText([MCOLS.map(c=>c[1]).concat("Link").join("\t"),...rows().map(r=>MCOLS.map(([k])=>String(r[k]).replace(/[\t\n]+/g," ")).concat(r.url).join("\t"))].join("\n"),"Table copied — paste into Excel or Sheets");
+  m.querySelector("#mmd").onclick=()=>copyText(["| "+MCOLS.map(c=>c[1]).concat("Link").join(" | ")+" |","|"+MCOLS.map(()=>"---").concat("---").join("|")+"|",...rows().map(r=>"| "+MCOLS.map(([k])=>String(r[k]).replace(/\|/g,"/").replace(/\n+/g," ")).concat(`[open](${r.url})`).join(" | ")+" |")].join("\n"),"Markdown table copied");
+}
+/* ---- map ---- */
+const GEO_LS="refatlas.geo";let GEO={};try{GEO=JSON.parse(localStorage.getItem(GEO_LS)||"{}")}catch(e){}
+function loadLeaflet(){
+  if(window.L)return Promise.resolve();
+  if(loadLeaflet.p)return loadLeaflet.p;
+  return loadLeaflet.p=new Promise((res,rej)=>{
+    const css=document.createElement("link");css.rel="stylesheet";css.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";document.head.appendChild(css);
+    const js=document.createElement("script");js.src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";js.onload=res;js.onerror=rej;document.head.appendChild(js);
+  });
+}
+async function geocode(q){
+  q=String(q||"").trim();if(!q)return null;if(GEO[q]!==undefined)return GEO[q];
+  try{const j=await (await fetch("https://photon.komoot.io/api/?limit=1&q="+encodeURIComponent(q))).json();const f=(j.features||[])[0];GEO[q]=f?[f.geometry.coordinates[1],f.geometry.coordinates[0]]:null}catch(e){return null}
+  try{localStorage.setItem(GEO_LS,JSON.stringify(GEO))}catch(e){}
+  return GEO[q];
+}
+let MAP=null;
+async function renderMap(ids){
+  const el=$("#map");if(!el)return;
+  try{await loadLeaflet()}catch(e){el.innerHTML=`<div class="empty" style="border:0">The map library couldn't load — check your connection.</div>`;return}
+  if(MAP){MAP.remove();MAP=null}
+  MAP=L.map(el,{scrollWheelZoom:true,worldCopyJump:true}).setView([55,15],3);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",{attribution:"Tiles &copy; Esri — Esri, HERE, Garmin, &copy; OpenStreetMap contributors",maxZoom:16,referrerPolicy:"no-referrer"}).addTo(MAP);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:16,referrerPolicy:"no-referrer"}).addTo(MAP);
+  const pts=[],missing=[];
+  for(const id of ids){
+    const b=S.board[id],p=b.p;const q=b.loc||p.loc;
+    if(!q){missing.push(id);continue}
+    const ll=await geocode(q);if(!$("#map"))return;
+    if(!ll){missing.push(id);continue}
+    const c=cover(p);const col=(SRC[p.src]||{}).c||"#1D3A30";
+    const mk=L.circleMarker(ll,{radius:8,color:"#fff",weight:2,fillColor:col,fillOpacity:.95}).addTo(MAP);
+    mk.bindPopup(`<div class="pop">${c?`<img src="${esc(c.m||c.l)}" referrerpolicy="no-referrer">`:""}<b>${esc(p.name)}</b><span class="small">${esc(p.by||"")}${q?" · "+esc(q):""}</span><br><button data-pop="${esc(id)}">Open</button></div>`);
+    pts.push(ll);
+  }
+  if(pts.length)MAP.fitBounds(pts,{padding:[40,40],maxZoom:8});
+  MAP.on("popupopen",e=>{const b=e.popup.getElement().querySelector("[data-pop]");if(b)b.onclick=()=>openLB(b.dataset.pop,"all",null,false,"grid")});
+  const nm=$("#nomap");
+  if(nm)nm.innerHTML=missing.length?`<div class="sec" style="margin-bottom:6px">Not on the map yet — add a place (city, country)</div>${missing.map(id=>`<div class="r"><b style="flex:0 0 240px;font-family:var(--serif);font-weight:600">${esc(S.board[id].p.name)}</b><input data-locin="${esc(id)}" placeholder="e.g. Skellefteå, Sweden" value="${esc(S.board[id].loc||"")}"><button class="btn ghost" data-locok="${esc(id)}">Place</button></div>`).join("")}`:"";
+  nm&&nm.querySelectorAll("[data-locok]").forEach(b=>b.onclick=()=>{const id=b.dataset.locok;const v=nm.querySelector(`[data-locin="${CSS.escape(id)}"]`).value.trim();S.board[id].loc=v;persist();renderBoard()});
+}
+/* ---- PDF export ---- */
+function exportPDF(ids){
+  const pr=$("#print");const today=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+  const title=S.colf.length?"Reference board · "+S.colf.join(", "):"Reference board";
+  pr.innerHTML=`<div class="pp cover"><h1>${esc(title)}</h1><div class="meta2">${ids.length} references · ${today}</div><div class="list">${ids.map((id,i)=>`<div>${i+1}. ${esc(S.board[id].p.name)}${S.board[id].p.by?" — "+esc(S.board[id].p.by):""}</div>`).join("")}</div></div>`+
+  ids.map((id,i)=>{const b=S.board[id],p=b.p;const ph=p.imgs[0],ds=(p.det&&p.det.length?p.det:(p.dr||[])).slice(0,2);const main=ph||ds[0];const side=ph?ds:ds.slice(1);
+    return `<div class="pp"><div class="meta2">${i+1} / ${ids.length} · ${esc((SRC[p.src]||{}).n||p.src)}</div><h2>${esc(p.name)}</h2><div class="meta2">${esc(p.by||"")}${(b.loc||p.loc)?" · "+esc(b.loc||p.loc):""}${p.year?" · "+esc(p.year):""}</div>
+    <div class="imgs">${main?`<img src="${esc(main.l)}" referrerpolicy="no-referrer">`:"<div></div>"}<div class="side2">${side.map(d=>`<img src="${esc(d.l)}" referrerpolicy="no-referrer">`).join("")}</div></div>
+    <table>${factRows(p,b).map(([k,v])=>`<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join("")}<tr><td>Link</td><td>${esc(p.url)}</td></tr></table>
+    <div class="credit2">${p.src==="commons"?esc((p.photo||"")+" · "+(p.lic||"")+" · Wikimedia Commons"):p.photo?"Photographs © "+esc(p.photo)+" · drawings © the architects · via "+esc((SRC[p.src]||{}).n||p.src):"Images © their photographers and architects · via "+esc((SRC[p.src]||{}).n||p.src)}</div></div>`}).join("");
+  toast("Preparing PDF — choose “Save as PDF” in the print window");
+  const imgs=[...pr.querySelectorAll("img")];let left=imgs.length;const go=()=>setTimeout(()=>window.print(),300);
+  if(!left)return go();let done=false;const fin=()=>{if(!done&&--left<=0){done=true;go()}};
+  imgs.forEach(im=>{if(im.complete)fin();else{im.onload=fin;im.onerror=fin}});setTimeout(()=>{if(!done){done=true;go()}},6000);
+}
+/* ---- roulette ---- */
+function spin(){
+  const fns=FUNCTIONS.filter(f=>!["small-scale","installation","renovation","extension"].includes(f[1]));
+  const f=fns[Math.floor(Math.random()*fns.length)];const mat=Math.random()<.55?MATERIALS.slice(0,6)[Math.floor(Math.random()*6)]:"";
+  Object.assign(S,{q:"",cat:f[1],mat,country:"",year:"",amin:"",amax:"",bucket:null,smart:null,order:"mix"});
+  S.roulette={f:f[0],mat,start:{archdaily:Math.floor(Math.random()*4)}};
+  $("#q").value="";S.view="results";$("#boardBtn").classList.remove("on");search();
+}
+function rouletteHTML(){if(!S.roulette)return"";return `<div class="rou">🎲 <b>${esc(S.roulette.f)}${S.roulette.mat?" · "+esc(S.roulette.mat):""}</b><span class="small">A random function${S.roulette.mat?" and material":""} to break out of your usual references.</span><button class="btn amber" id="respin" style="margin-left:auto">Spin again</button><button class="btn ghost" id="rouoff">Clear</button></div>`}
+
+/* ===================== lightbox ===================== */
+let LBid=null,LBi=0,LBgo=()=>{};
+async function enrichGallery(p){
+  if(p.full||p.src==="archdaily"||!p.wpid)return;p.full=true;
+  const s=SRC[p.src];
+  try{
+    const j=await (await getJSON(`https://${s.host}/wp-json/wp/v2/posts/${p.wpid}?_fields=content`)).json();
+    const html=j&&j.content&&j.content.rendered||"";
+    const doc=new DOMParser().parseFromString(html,"text/html");
+    const urls=[];
+    const nameWords=(p.name+" "+(p.by||"")).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/).filter(Boolean);
+    doc.querySelectorAll("img").forEach(im=>{
+      let u=im.getAttribute("data-src")||im.getAttribute("data-lazy-src")||im.getAttribute("src")||"";
+      const ss=im.getAttribute("srcset")||im.getAttribute("data-srcset");
+      if(ss){const c=ss.split(",").map(x=>x.trim().split(/\s+/)).filter(x=>x[0]);const big=c.sort((a,b)=>parseInt(b[1]||0)-parseInt(a[1]||0))[0];if(big)u=big[0]}
+      if(!u||u.startsWith("data:")||/\.(svg|gif)(\?|$)/i.test(u)||/avatar|logo|icon|emoji|pixel|banner|advert/i.test(u))return;
+      if(u.startsWith("//"))u="https:"+u;
+      const w=+im.getAttribute("width")||999;if(w<300)return;
+      const txt=[im.getAttribute("alt")||"",im.getAttribute("title")||"",(im.closest("figure")&&im.closest("figure").querySelector("figcaption")||{}).textContent||""].join(" ").slice(0,200);
+      const det=isDetail(u.split("/").pop(),txt,nameWords);
+      if(!urls.some(x=>x.u===u))urls.push({u,dw:det||isDrawing(u.split("/").pop(),txt,nameWords),det,cap:(im.getAttribute("alt")||"").slice(0,80)});
+    });
+    p.dr=p.dr||[];
+    urls.slice(0,40).forEach(({u,dw,det,cap})=>{if(dw){if(!p.dr.some(x=>x.l===u))p.dr.push({m:u,l:u,s:u,det,cap})}else if(!p.imgs.some(x=>x.l===u))p.imgs.push({m:u,l:u,s:u,cap})});
+    p.det=p.dr.filter(x=>x.det);
+  }catch(e){}
+}
+let LBtab="all",LBview="grid",LBcols=3;
+function openLB(id,tab,startUrl,keep,view){
+  const p=findItem(id);if(!p)return;if(LBid!==id&&!keep)LBview="grid";if(view)LBview=view;LBid=id;LBtab=tab||"all";
+  if(!p.drState)loadDrawings(id);
+  const photos=p.imgs.map(x=>({...x,dw:false})),dws=(p.dr||[]).map(x=>({...x,dw:true}));
+  const dets=dws.filter(x=>x.det);
+  if(LBtab==="details"&&!dets.length&&p.drState==="done")LBtab="all";
+  const L=LBtab==="photos"?photos:LBtab==="drawings"?dws:LBtab==="details"?dets:(S.kind==="details"?[...dets,...dws.filter(x=>!x.det),...photos]:[...photos,...dws]);
+  if(!keep){LBi=0;if(startUrl){const k=L.findIndex(x=>x.l===startUrl);if(k>=0)LBi=k}}
+  LBi=Math.max(0,Math.min(LBi,Math.max(0,L.length-1)));
+  const sv=S.board[id];const lb=$("#lb");const s=SRC[p.src]||{n:p.src};
+  const cols=[...new Set(Object.values(S.board).map(b=>b.col).filter(Boolean))];
+  const loading=p.drState!=="done";
+  const tabsHTML=`<div class="lbtabs"><button data-tab="all" class="${LBtab==="all"?"on":""}">All ${photos.length+dws.length}</button><button data-tab="photos" class="${LBtab==="photos"?"on":""}">Photos ${photos.length}</button><button data-tab="drawings" class="${LBtab==="drawings"?"on":""}" ${!dws.length&&!loading?"disabled":""}>Plans & drawings ${loading?"…":dws.length}</button>${dets.length?`<button data-tab="details" class="${LBtab==="details"?"on":""}">Details ${dets.length}</button>`:""}</div>`;
+  const emptyMsg=LBtab==="drawings"?(loading?"Looking for plans and drawings…":`No drawings found for this project here.<br><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:var(--amber)">Check the full article on ${esc(s.n)} ↗</a>`):"No photos available";
+  const gridHTML=`<div class="gal" id="lbgal"><div class="ghead"><div class="gtitle">${esc(p.name)}</div>${tabsHTML}<div class="gsize">${[[2,"L"],[3,"M"],[4,"S"]].map(([n,l])=>`<button data-gc="${n}" class="${LBcols===n?"on":""}" title="Thumbnail size">${l}</button>`).join("")}</div></div>
+    ${L.length?`<div class="cols" style="--gc:${LBcols}">${L.map((im,k)=>`<div class="gi ${im.dw?"dw":""}" data-k="${k}"><img src="${esc(im.dw?im.l:(im.m||im.l))}" referrerpolicy="no-referrer" loading="lazy" alt=""><span class="k">${im.det?"detail":im.dw?"drawing":"photo"}${im.cap?" · "+esc(im.cap.slice(0,40)):" "+(k+1)}</span></div>`).join("")}</div>`:`<div class="msg">${emptyMsg}</div>`}
+    ${loading&&LBtab!=="drawings"?`<div class="msg" style="padding:16px">Looking for plans and drawings…</div>`:""}</div>`;
+  lb.innerHTML=`<button class="close" id="lbx">✕</button>
+  ${LBview==="grid"?gridHTML:`<div class="stage"><button class="back" id="lbback">← Back to gallery</button>
+    ${tabsHTML}
+    ${L.length&&L[LBi].cap?`<div class="loadmsg" style="top:auto;bottom:118px">${esc(L[LBi].cap)}</div>`:""}
+    ${L.length?`<img id="lbimg" class="${L[LBi].dw?"dw":""}" src="${esc(L[LBi].l)}" referrerpolicy="no-referrer" alt="${esc(p.name)}">`:`<div style="color:var(--sage);text-align:center;line-height:1.6">${LBtab==="drawings"?(loading?"Looking for plans and drawings…":`No drawings found for this project here.<br><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:var(--amber)">Check the full article on ${esc(s.n)} ↗</a>`):"No photo available"}</div>`}
+    ${L.length>1?`<button class="nav prev" id="lbp">‹</button><button class="nav next" id="lbn">›</button>
+    <div class="count">${LBi+1} / ${L.length}</div><div class="strip">${L.map((im,k)=>`<img src="${esc(im.s||im.m)}" referrerpolicy="no-referrer" data-k="${k}" class="${k===LBi?"on":""}" style="${im.dw?"background:#fff;object-fit:contain":""}" loading="lazy">`).join("")}</div>`:""}</div>`}
+  <div class="side">
+    ${p.cats.length?`<div class="cat">${esc(p.cats.join(" · "))}</div>`:""}
+    <h2>${esc(p.name)}</h2>${p.by?`<div class="by" style="font-size:14px">${esc(p.by)}</div>`:""}
+    ${(p.loc||p.year||p.area)?`<div class="facts">${p.loc?`<div style="grid-column:1/-1"><span>Location</span><b>${esc(p.loc)}</b></div>`:""}<div><span>Year</span><b>${esc(p.year||"—")}</b></div><div><span>Area</span><b>${p.area?fmtA(p.area):"—"}</b></div></div>`:""}
+    ${p.desc?`<p class="small" style="font-size:13px;color:var(--forest)">${esc(p.desc)}</p>`:""}
+    <a class="btn dark" href="${esc(p.url)}" target="_blank" rel="noopener">${p.src==="commons"?"File & licence on Wikimedia Commons ↗":"Full article on "+esc(s.n)+" ↗"}</a>
+    <button class="btn ${sv?"ghost":"amber"}" id="lbsave">${bmk(sv)} ${sv?"Saved — remove":"Save to board"}</button>
+    ${sv?`<div class="sec">Notes</div><textarea class="nt" id="lbnote" placeholder="What to borrow: plan organisation, section, facade rhythm, structure…">${esc(sv.note)}</textarea>
+      <input class="colin" id="lbcol" list="lbcols" placeholder="Collection (e.g. Dome hall · Seminar 1)" value="${esc(sv.col)}"><datalist id="lbcols">${cols.map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+      ${!p.loc?`<input class="colin" id="lbloc" placeholder="Location for the map (e.g. Oslo, Norway)" value="${esc(sv.loc||"")}">`:""}
+      <button class="btn ghost" id="lbcmp">⇄ ${S.cmp.includes(id)?"In compare — remove":"Add to compare"}</button>`:""}
+    <div class="small">${p.src==="commons"?`${esc(p.photo||"Author on Commons")} · <b>${esc(p.lic||"see licence")}</b> · via Wikimedia Commons — reusable with attribution per the licence`:p.photo?`Photographs © ${esc(p.photo)} · drawings © the architects · via ${esc(s.n)}`:`Images © their photographers and architects · via ${esc(s.n)}`}</div>
+    <div class="small">← → browse · Esc to close</div>
+  </div>`;
+  lb.classList.add("on");
+  const gal=$("#lbgal");if(gal&&keep&&openLB._st!=null&&openLB._id===id)gal.scrollTop=openLB._st;
+  if(gal)gal.onscroll=()=>{openLB._st=gal.scrollTop;openLB._id=id};else{openLB._st=null}
+  $("#lbx").onclick=closeLB;
+  lb.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.disabled)return;LBi=0;openLB(id,b.dataset.tab,null,true)});
+  lb.querySelectorAll("#lbgal .gi").forEach(g=>{g.onclick=()=>{LBi=+g.dataset.k;LBview="single";openLB(id,LBtab,null,true)};const im=g.querySelector("img");im.onerror=()=>g.remove()});
+  lb.querySelectorAll("[data-gc]").forEach(b=>b.onclick=()=>{LBcols=+b.dataset.gc;const c=lb.querySelector(".cols");if(c)c.style.setProperty("--gc",LBcols);lb.querySelectorAll("[data-gc]").forEach(x=>x.classList.toggle("on",x===b))});
+  const bk=$("#lbback");if(bk)bk.onclick=()=>{LBview="grid";openLB(id,LBtab,null,true)};
+  const go=d=>{if(LBview!=="single"||!L.length)return;LBi=(LBi+d+L.length)%L.length;const im=$("#lbimg");im.src=L[LBi].l;im.classList.toggle("dw",!!L[LBi].dw);lb.querySelectorAll(".strip img").forEach((x,k)=>x.classList.toggle("on",k===LBi));const c=lb.querySelector(".count");if(c)c.textContent=(LBi+1)+" / "+L.length};
+  LBgo=go;
+  const pv=$("#lbp"),nx=$("#lbn");if(pv)pv.onclick=()=>go(-1);if(nx)nx.onclick=()=>go(1);
+  lb.querySelectorAll(".strip img").forEach(im=>{im.onclick=()=>{LBi=+im.dataset.k;go(0)};im.onerror=()=>im.remove()});
+  $("#lbsave").onclick=()=>toggleSave(id);
+  const nt=$("#lbnote"),cl=$("#lbcol");
+  if(nt)nt.oninput=()=>{S.board[id].note=nt.value;persist()};
+  if(cl){cl.oninput=()=>{S.board[id].col=cl.value;persist()};cl.onchange=()=>refreshCard(id)}
+  const lc=$("#lbloc");if(lc)lc.oninput=()=>{S.board[id].loc=lc.value;persist()};
+  const cm=$("#lbcmp");if(cm)cm.onclick=()=>toggleCmp(id);
+}
+function closeLB(){LBview="grid";openLB._st=null;$("#lb").classList.remove("on");LBid=null;if(S.view==="board")renderBoard()}
+document.addEventListener("keydown",e=>{if(!$("#lb").classList.contains("on"))return;if(e.target.matches("textarea,input")&&e.key!=="Escape")return;if(e.target.matches("textarea,input"))e.target.blur();if(e.key==="Escape"){if(LBview==="single"&&LBid){LBview="grid";openLB(LBid,LBtab,null,true)}else closeLB()}if(e.key==="ArrowRight")LBgo(1);if(e.key==="ArrowLeft")LBgo(-1)});
+
+let tt;function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),1700)}
+
+/* ===================== wiring ===================== */
+function setMode(m){
+  S.mode=m;document.querySelectorAll("#mode button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  $("#q").placeholder=m==="smart"?"Describe it — e.g. 300 m² timber community hall in Sweden (press Enter)":"Search projects — e.g. timber library, dome, rammed earth…";
+  $("#q").focus();
+}
+document.querySelectorAll("#mode button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$("#rouBtn").onclick=spin;
+function goHome(){
+  closeLB();Object.assign(S,{view:"results",q:"",cat:"",country:"",mat:"",year:"",amin:"",amax:"",bucket:null,smart:null,roulette:null,kind:"projects"});
+  $("#q").value="";$("#boardBtn").classList.remove("on");setMode("search");persist();window.scrollTo(0,0);search();
+}
+$("#homeBtn").onclick=goHome;$("#brandHome").onclick=goHome;
+$("#boardBtn").onclick=()=>{S.view=S.view==="board"?"results":"board";$("#boardBtn").classList.toggle("on",S.view==="board");renderSide();renderMain()};
+let qt;
+$("#q").addEventListener("input",e=>{if(S.mode==="smart")return;clearTimeout(qt);qt=setTimeout(()=>{S.q=e.target.value.trim();S.smart=null;S.exact=false;if(S.view==="board"){S.view="results";$("#boardBtn").classList.remove("on");renderSide()}search()},450)});
+$("#q").addEventListener("keydown",e=>{if(e.key!=="Enter")return;clearTimeout(qt);if(S.view==="board"){S.view="results";$("#boardBtn").classList.remove("on");renderSide()}
+  S.exact=false;if(S.mode==="smart")smartSearch(e.target.value);else{S.q=e.target.value.trim();S.smart=null;search()}});
+setMode("search");renderSide();search();
+</script>
+</body>
+</html>
