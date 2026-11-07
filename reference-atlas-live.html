@@ -158,6 +158,11 @@ main{padding:24px 30px 80px;min-width:0}
 .qinfo{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px;color:var(--stone);margin:-8px 0 16px}
 .qinfo b{color:var(--forest)}.qinfo s{color:var(--brick)}
 .qinfo button{border:0;background:none;color:var(--teal);font-weight:600;font-size:12.5px;padding:0;text-decoration:underline;text-underline-offset:3px}
+.topbtn.synced{background:rgba(238,243,241,.12)}
+.topbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block}
+.topbtn.synced .dot{background:#8FD19E}
+.syncmenu{position:fixed;z-index:75;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px -18px rgba(0,0,0,.35);padding:12px 14px;min-width:240px;font-size:13px}
+.syncmenu .small{margin:2px 0 10px}
 .homebtn{border:0;background:rgba(238,243,241,.1);color:var(--mist);width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;transition:.15s}
 .homebtn:hover{background:var(--mist);color:var(--forest)}
 .colbadge{position:absolute;left:12px;top:40px;font-size:11px;font-weight:700;background:var(--amber);color:var(--forest);padding:3px 9px;border-radius:6px;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -314,6 +319,7 @@ em,i{font-style:normal}
     <div class="mode" id="mode"><button data-m="search" class="on">Search</button><button data-m="smart" class="ai">✦ Smart search</button></div>
   </div>
   <button class="topbtn" id="rouBtn" title="Inspiration roulette — random function & material">🎲 Surprise me</button>
+  <button class="topbtn" id="syncBtn" title="Sync your board across devices">☁ Sign in to sync</button>
   <button class="topbtn" id="boardBtn">Board <span class="count" id="bc">0</span></button>
 </div></header>
 <div class="wrap"><aside id="side"></aside><main id="main"></main></div>
@@ -365,8 +371,8 @@ const S={mode:"search",view:"results",q:"",cat:"",country:"",mat:"",year:"",amin
   on:Object.fromEntries(SOURCES.map(s=>[s.k,true])),
   res:{},seq:0,countries:[],board:{},preview:"photos",smart:null,kind:"projects",bview:"cards",colf:[],nq:"",cmp:[],roulette:null};
 const LS="refatlas.live.v2";
-try{const j=JSON.parse(localStorage.getItem(LS)||localStorage.getItem("refatlas.live.v1")||"null");if(j){S.board=j.board||{};S.size=j.size||"m";S.countries=j.countries||[];S.preview=j.preview||"photos";S.kind=j.kind||"projects";S.cmp=j.cmp||[];if(j.on)Object.assign(S.on,j.on)}}catch(e){}
-function persist(){try{localStorage.setItem(LS,JSON.stringify({board:S.board,size:S.size,countries:S.countries,preview:S.preview,on:S.on,kind:S.kind,cmp:S.cmp}))}catch(e){}}
+try{const j=JSON.parse(localStorage.getItem(LS)||localStorage.getItem("refatlas.live.v1")||"null");if(j){S.board=j.board||{};S.size=j.size||"m";S.countries=j.countries||[];S.preview=j.preview||"photos";S.removed=j.removed||{};S.lastExport=j.lastExport||0;S.kind=j.kind||"projects";S.cmp=j.cmp||[];if(j.on)Object.assign(S.on,j.on)}}catch(e){}
+function persist(){schedulePush();try{localStorage.setItem(LS,JSON.stringify({removed:S.removed||{},lastExport:S.lastExport||0,board:S.board,size:S.size,countries:S.countries,preview:S.preview,on:S.on,kind:S.kind,cmp:S.cmp}))}catch(e){}}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const dec=s=>{const t=document.createElement("textarea");t.innerHTML=s||"";return t.value};
@@ -814,8 +820,8 @@ function renderMain(){
 /* ===================== board ===================== */
 function findItem(id){for(const R of Object.values(S.res)){const f=R.items.find(x=>x.id===id);if(f)return f}return S.board[id]&&S.board[id].p}
 function toggleSave(id){
-  if(S.board[id]){delete S.board[id];toast("Removed from board")}
-  else{const p=findItem(id);if(!p)return;S.board[id]={p,note:"",col:"",at:Date.now()};toast("Saved to board")}
+  if(S.board[id]){delete S.board[id];S.removed=S.removed||{};S.removed[id]=Date.now();toast("Removed from board")}
+  else{const p=findItem(id);if(!p)return;S.board[id]={p,note:"",col:"",at:Date.now(),upd:Date.now()};if(S.removed)delete S.removed[id];toast("Saved to board")}
   persist();
   document.querySelectorAll(`[data-save="${CSS.escape(id)}"]`).forEach(b=>{const on=!!S.board[id];b.classList.toggle("on",on);b.innerHTML=bmk(on)});
   $("#bc").textContent=Object.keys(S.board).length;
@@ -842,12 +848,12 @@ function renderBoard(){
   const m=$("#main");const all=Object.keys(S.board);const ids=boardIds();const cols=allCols();const filtering=S.colf.length||(S.nq||"").trim();
   const head=`<div class="mh"><div><h2>Your <i>board</i></h2><p>${all.length} saved reference${all.length===1?"":"s"}${filtering?` · ${ids.length} shown`:""}</p></div>
    <div class="tools">${S.bview==="cards"?`<div class="seg2">${[["s","S"],["m","M"],["l","L"]].map(([k,l])=>`<button data-size="${k}" class="${S.size===k?"on":""}">${l}</button>`).join("")}</div>`:""}
-   ${all.length?`<button class="btn ghost" id="copy">Copy as list</button><button class="btn dark" id="pdf">Export PDF</button>`:""}</div></div>
+   <button class="btn ghost" id="bimp" title="Load a board file saved on another device">⇩ Import board</button>${all.length?`<button class="btn ghost" id="bexp" title="Save your board to a file to open on another device">⇧ Export board</button><button class="btn ghost" id="copy">Copy as list</button><button class="btn dark" id="pdf">Export PDF</button>`:""}<input type="file" id="bfile" accept=".json,application/json" hidden></div></div>
   <div class="bbar"><div class="bviews">${[["cards","Cards"],["compare","Compare"],["matrix","Precedent matrix"],["map","Map"]].map(([k,l])=>`<button data-bv="${k}" class="${S.bview===k?"on":""}">${l}${k==="compare"&&S.cmp.length?` <span class="n">${S.cmp.length}</span>`:""}</button>`).join("")}</div>
    ${all.length?`<input class="bsearch" id="nq" type="search" placeholder="Search your notes…" value="${esc(S.nq||"")}">`:""}
    ${cols.length>1||(cols[0]&&cols[0][0]!=="Unsorted")?`<div class="tagrow"><span class="small">Collection:</span>${cols.map(([c,n])=>`<button class="tagchip ${S.colf.includes(c)?"on":""}" data-cf="${esc(c)}">${esc(c)} <span style="opacity:.6">${n}</span></button>`).join("")}${S.colf.length?`<button class="tagchip" data-cf="">all</button>`:""}</div>`:`<span class="small">Tip: give saved projects a collection (e.g. Dome hall, Seminar 1) to filter by it here.</span>`}</div>`;
   let body="";
-  if(!all.length)body=`<div class="empty"><h4>Nothing saved yet</h4>Bookmark projects or details from the results.</div>`;
+  if(!all.length)body=`<div class="empty"><h4>Nothing saved yet</h4>Bookmark projects or details from the results.<br>Saved projects on another device? Export your board there, then <b>Import board</b> here.<br><button class="btn dark" id="bimp2" style="margin-top:14px">⇩ Import board</button></div>`;
   else if(S.bview==="cards"){
     const groups={};ids.forEach(id=>{const c=(S.board[id].col||"").trim()||"Unsorted";(groups[c]=groups[c]||[]).push(id)});
     const names=Object.keys(groups).sort((a,b)=>a==="Unsorted"?1:b==="Unsorted"?-1:a.localeCompare(b));
@@ -863,9 +869,32 @@ function renderBoard(){
   m.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{S.size=b.dataset.size;persist();renderMain()});
   const cp=m.querySelector("#copy");if(cp)cp.onclick=()=>copyText(boardText(ids),"List copied");
   const pdf=m.querySelector("#pdf");if(pdf)pdf.onclick=()=>exportPDF(ids);
+  const fi=m.querySelector("#bfile");[m.querySelector("#bimp"),m.querySelector("#bimp2")].forEach(b=>{if(b)b.onclick=()=>fi.click()});
+  fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(f)importBoard(await f.text())};
+  const bx=m.querySelector("#bexp");if(bx)bx.onclick=exportBoard;
   if(S.bview==="compare")bindCompare(m);
   if(S.bview==="matrix")bindMatrix(m,ids);
   if(S.bview==="map")renderMap(ids);
+}
+/* ---- board export / import (sync between devices without accounts) ---- */
+function exportBoard(){
+  const data={app:"reference-atlas",v:1,exported:new Date().toISOString(),board:S.board,removed:S.removed||{},cmp:S.cmp||[]};
+  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="reference-atlas-board-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+  S.lastExport=Date.now();persist();toast("Board saved to a file — open it on your other device with Import board");
+}
+function importBoard(text){
+  let d;try{d=JSON.parse(text)}catch(e){toast("That file isn't a board file");return}
+  if(!d||d.app!=="reference-atlas"||typeof d.board!=="object"){toast("That file isn't a Reference Atlas board");return}
+  const ts=b=>b&&(b.upd||b.at)||0;let added=0,updated=0,removed=0;
+  S.removed=S.removed||{};
+  Object.entries(d.removed||{}).forEach(([id,t])=>{if(S.board[id]&&t>ts(S.board[id])){delete S.board[id];removed++}if(!S.removed[id]||S.removed[id]<t)S.removed[id]=t});
+  Object.entries(d.board).forEach(([id,b])=>{if(!b||!b.p)return;if(S.removed[id]&&S.removed[id]>ts(b))return;
+    if(!S.board[id]){S.board[id]=b;added++}else if(ts(b)>ts(S.board[id])){S.board[id]=b;updated++}});
+  (d.cmp||[]).forEach(id=>{if(S.board[id]&&!S.cmp.includes(id)&&S.cmp.length<4)S.cmp.push(id)});
+  persist();renderBoard();$("#bc").textContent=Object.keys(S.board).length;
+  toast(added||updated||removed?`Imported: ${added} added${updated?`, ${updated} updated`:""}${removed?`, ${removed} removed`:""}`:"Already up to date");
 }
 async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(msg||"Copied")}catch(e){toast("Copy not available")}}
 function boardText(ids){
@@ -948,7 +977,7 @@ async function renderMap(ids){
   MAP.on("popupopen",e=>{const b=e.popup.getElement().querySelector("[data-pop]");if(b)b.onclick=()=>openLB(b.dataset.pop,"all",null,false,"grid")});
   const nm=$("#nomap");
   if(nm)nm.innerHTML=missing.length?`<div class="sec" style="margin-bottom:6px">Not on the map yet — add a place (city, country)</div>${missing.map(id=>`<div class="r"><b style="flex:0 0 240px;font-family:var(--serif);font-weight:600">${esc(S.board[id].p.name)}</b><input data-locin="${esc(id)}" placeholder="e.g. Skellefteå, Sweden" value="${esc(S.board[id].loc||"")}"><button class="btn ghost" data-locok="${esc(id)}">Place</button></div>`).join("")}`:"";
-  nm&&nm.querySelectorAll("[data-locok]").forEach(b=>b.onclick=()=>{const id=b.dataset.locok;const v=nm.querySelector(`[data-locin="${CSS.escape(id)}"]`).value.trim();S.board[id].loc=v;persist();renderBoard()});
+  nm&&nm.querySelectorAll("[data-locok]").forEach(b=>b.onclick=()=>{const id=b.dataset.locok;const v=nm.querySelector(`[data-locin="${CSS.escape(id)}"]`).value.trim();S.board[id].loc=v;S.board[id].upd=Date.now();persist();renderBoard()});
 }
 /* ---- PDF export ---- */
 function exportPDF(ids){
@@ -1055,15 +1084,101 @@ function openLB(id,tab,startUrl,keep,view){
   lb.querySelectorAll(".strip img").forEach(im=>{im.onclick=()=>{LBi=+im.dataset.k;go(0)};im.onerror=()=>im.remove()});
   $("#lbsave").onclick=()=>toggleSave(id);
   const nt=$("#lbnote"),cl=$("#lbcol");
-  if(nt)nt.oninput=()=>{S.board[id].note=nt.value;persist()};
-  if(cl){cl.oninput=()=>{S.board[id].col=cl.value;persist()};cl.onchange=()=>refreshCard(id)}
-  const lc=$("#lbloc");if(lc)lc.oninput=()=>{S.board[id].loc=lc.value;persist()};
+  if(nt)nt.oninput=()=>{S.board[id].note=nt.value;S.board[id].upd=Date.now();persist()};
+  if(cl){cl.oninput=()=>{S.board[id].col=cl.value;S.board[id].upd=Date.now();persist()};cl.onchange=()=>refreshCard(id)}
+  const lc=$("#lbloc");if(lc)lc.oninput=()=>{S.board[id].loc=lc.value;S.board[id].upd=Date.now();persist()};
   const cm=$("#lbcmp");if(cm)cm.onclick=()=>toggleCmp(id);
 }
 function closeLB(){LBview="grid";openLB._st=null;$("#lb").classList.remove("on");LBid=null;if(S.view==="board")renderBoard()}
 document.addEventListener("keydown",e=>{if(!$("#lb").classList.contains("on"))return;if(e.target.matches("textarea,input")&&e.key!=="Escape")return;if(e.target.matches("textarea,input"))e.target.blur();if(e.key==="Escape"){if(LBview==="single"&&LBid){LBview="grid";openLB(LBid,LBtab,null,true)}else closeLB()}if(e.key==="ArrowRight")LBgo(1);if(e.key==="ArrowLeft")LBgo(-1)});
 
 let tt;function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),1700)}
+
+
+/* ===================== cloud sync (Firebase: Google sign-in + Firestore) ===================== */
+// Paste the firebaseConfig from your Firebase project here (it is a public identifier, not a secret).
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyClpWxpSiPii7VDqF8LCQD9dVT7LcREqYA",
+  authDomain:"reference-atlas.firebaseapp.com",
+  projectId:"reference-atlas",
+  storageBucket:"reference-atlas.firebasestorage.app",
+  messagingSenderId:"572390715356",
+  appId:"1:572390715356:web:f5053fb140796149d7e919"
+};
+const FB_V="10.12.5";
+var FB=null,USER=null,FS=null,UNSUB=null,SYNCED={},pushT=null,syncReady=false;
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+async function fbInit(){
+  if(FB)return FB;if(!FIREBASE_CONFIG)return null;
+  await loadScript(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-app-compat.js`);
+  await Promise.all([loadScript(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-auth-compat.js`),loadScript(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-firestore-compat.js`)]);
+  FB=firebase.initializeApp(FIREBASE_CONFIG);FS=firebase.firestore();
+  try{await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(e){}
+  firebase.auth().onAuthStateChanged(onUser);
+  try{await firebase.auth().getRedirectResult()}catch(e){}
+  return FB;
+}
+const boardCol=()=>FS.collection("users").doc(USER.uid).collection("board");
+const ts=b=>b&&(b.upd||b.at)||0;
+const docId=id=>id.replace(/\//g,"_");
+function clean(o){return JSON.parse(JSON.stringify(o))}
+async function onUser(u){
+  USER=u;syncReady=false;if(UNSUB){UNSUB();UNSUB=null}
+  renderSyncBtn();
+  if(!u)return;
+  try{
+    const snap=await boardCol().get();
+    const remote={};snap.forEach(d=>remote[d.id]=d.data());
+    // merge: newest wins, tombstones remove
+    Object.values(remote).forEach(r=>{const id=r.id;if(!id)return;
+      if(r.deleted){if(S.board[id]&&r.upd>ts(S.board[id]))delete S.board[id];S.removed=S.removed||{};if(!S.removed[id]||S.removed[id]<r.upd)S.removed[id]=r.upd;SYNCED[id]=JSON.stringify(r);return}
+      if((S.removed||{})[id]>ts(r))return;
+      if(!S.board[id]||ts(r)>ts(S.board[id]))S.board[id]={p:r.p,note:r.note||"",col:r.col||"",loc:r.loc||"",at:r.at||0,upd:r.upd||r.at||0};
+      SYNCED[id]=JSON.stringify(remoteShape(id,S.board[id]));
+    });
+    syncReady=true;persist();rerenderAll();
+    UNSUB=boardCol().onSnapshot(sn=>{let ch=false;
+      sn.docChanges().forEach(c=>{if(c.doc.metadata.hasPendingWrites)return;const r=c.doc.data();const id=r&&r.id;if(!id)return;
+        if(r.deleted){if(S.board[id]&&r.upd>=ts(S.board[id])){delete S.board[id];ch=true}S.removed=S.removed||{};S.removed[id]=Math.max(S.removed[id]||0,r.upd);SYNCED[id]=JSON.stringify(r);return}
+        if(!S.board[id]||ts(r)>ts(S.board[id])){S.board[id]={p:r.p,note:r.note||"",col:r.col||"",loc:r.loc||"",at:r.at||0,upd:r.upd||0};ch=true}
+        SYNCED[id]=JSON.stringify(remoteShape(id,S.board[id]));
+      });
+      if(ch){try{localStorage.setItem(LS,JSON.stringify(Object.assign(JSON.parse(localStorage.getItem(LS)||"{}"),{board:S.board,removed:S.removed})))}catch(e){}if(!$("#lb").classList.contains("on"))rerenderAll()}
+    },e=>{toast("Sync paused: "+(e.code||e.message))});
+    toast("Board synced ✓");
+  }catch(e){toast("Couldn't sync: "+(e.code||e.message));syncReady=false}
+  renderSyncBtn();
+}
+function remoteShape(id,b){return {id,p:b.p,note:b.note||"",col:b.col||"",loc:b.loc||"",at:b.at||0,upd:b.upd||b.at||0}}
+function schedulePush(){if(!USER||!syncReady)return;clearTimeout(pushT);pushT=setTimeout(pushChanges,700)}
+async function pushChanges(){
+  if(!USER||!syncReady)return;const batch=FS.batch();let n=0;
+  Object.entries(S.board).forEach(([id,b])=>{const shape=remoteShape(id,b);const js=JSON.stringify(shape);if(SYNCED[id]!==js){batch.set(boardCol().doc(docId(id)),clean(shape));SYNCED[id]=js;n++}});
+  Object.entries(S.removed||{}).forEach(([id,t])=>{if(S.board[id])return;const tomb={id,deleted:true,upd:t};const js=JSON.stringify(tomb);if(SYNCED[id]!==js){batch.set(boardCol().doc(docId(id)),tomb);SYNCED[id]=js;n++}});
+  if(!n)return;try{await batch.commit()}catch(e){toast("Sync failed: "+(e.code||e.message));SYNCED={}}
+}
+function rerenderAll(){$("#bc").textContent=Object.keys(S.board).length;if(S.view==="board")renderBoard();else renderMain()}
+function renderSyncBtn(){
+  const b=$("#syncBtn");if(!b)return;
+  if(!FIREBASE_CONFIG){b.style.display="none";return}
+  if(USER){b.classList.add("synced");b.innerHTML=`<span class="dot"></span> Synced`;b.title="Signed in as "+(USER.email||"you")+" — click for options"}
+  else{b.classList.remove("synced");b.innerHTML="☁ Sign in to sync";b.title="Sign in with Google to sync your board across devices"}
+}
+async function syncClick(e){
+  if(location.protocol==="file:"){toast("Sync works on your website address (github.io), not in the local file");return}
+  try{await fbInit()}catch(err){toast("Couldn't load sign-in — check your connection");return}
+  if(!USER){
+    const prov=new firebase.auth.GoogleAuthProvider();
+    try{await firebase.auth().signInWithPopup(prov)}catch(err){
+      if(/popup|cancelled|operation-not-supported/i.test(err.code||""))try{await firebase.auth().signInWithRedirect(prov)}catch(e2){toast("Sign-in failed: "+(e2.code||e2.message))}
+      else toast("Sign-in failed: "+(err.code||err.message))}
+    return;
+  }
+  const r=e.currentTarget.getBoundingClientRect();const m=document.createElement("div");m.className="syncmenu";m.style.top=(r.bottom+8)+"px";m.style.left=Math.max(10,r.right-260)+"px";
+  m.innerHTML=`<b>Board sync is on</b><div class="small">Signed in as ${esc(USER.email||"")}. Changes save automatically and appear on your other devices.</div><button class="btn ghost" id="sgout" style="width:100%">Sign out on this device</button>`;
+  document.body.appendChild(m);const close=ev=>{if(!m.contains(ev.target)){m.remove();document.removeEventListener("mousedown",close)}};setTimeout(()=>document.addEventListener("mousedown",close),0);
+  m.querySelector("#sgout").onclick=async()=>{m.remove();await firebase.auth().signOut();SYNCED={};toast("Signed out — your board stays on this device")};
+}
 
 /* ===================== wiring ===================== */
 function setMode(m){
@@ -1073,6 +1188,8 @@ function setMode(m){
 }
 document.querySelectorAll("#mode button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 $("#rouBtn").onclick=spin;
+$("#syncBtn").onclick=syncClick;renderSyncBtn();
+if(FIREBASE_CONFIG&&location.protocol!=="file:")fbInit().catch(()=>{});
 function goHome(){
   closeLB();Object.assign(S,{view:"results",q:"",cat:"",country:"",mat:"",year:"",amin:"",amax:"",bucket:null,smart:null,roulette:null,kind:"projects"});
   $("#q").value="";$("#boardBtn").classList.remove("on");setMode("search");persist();window.scrollTo(0,0);search();
